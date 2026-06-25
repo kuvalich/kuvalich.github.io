@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spirograph Alpha — Draw mesmerizing geometric art</title>
+<meta name="description" content="Spirograph Alpha is a vibrant, iOS-inspired drawing studio for creating mesmerizing geometric spirograph art. Tune gears, layer colors, animate, and export." />
+<meta name="theme-color" content="#0B0B12" />
+<meta property="og:title" content="Spirograph Alpha" />
+<meta property="og:description" content="Create mesmerizing geometric art with a vibrant, fluid spirograph studio." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+<div class="bg-orbs" aria-hidden="true"><span class="orb a"></span><span class="orb b"></span><span class="orb c"></span></div>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0" stop-color="#9E8CFF"/><stop offset="0.5" stop-color="#67E8F9"/><stop offset="1" stop-color="#FF6FA5"/>
+            </linearGradient>
+          </defs>
+          <circle cx="24" cy="24" r="20" stroke="url(#lg)" stroke-width="2.4"/>
+          <circle cx="24" cy="24" r="11" stroke="url(#lg)" stroke-width="2" opacity="0.8"/>
+          <circle cx="24" cy="13" r="2.6" fill="#67E8F9"/>
+        </svg>
+      </span>
+      Spirograph <b>Alpha</b>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#download">Download</a>
+      <a class="btn btn-primary nav-cta" href="#download">Get the app</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy reveal">
+        <span class="pill"><span class="dot"></span> Now with layered color &amp; export</span>
+        <h1 class="hero-title">Draw <span class="grad">mesmerizing</span> geometric art.</h1>
+        <p class="lead">Spirograph Alpha turns simple gears into endless hypnotic patterns. Tune the math, layer vivid colors, animate the pen, and export your masterpiece — all in a fluid, iOS-inspired studio.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#download">▸ Get the app</a>
+          <a class="btn btn-ghost" href="#features">Explore features</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="num">∞</div><div class="lbl">Unique patterns</div></div>
+          <div><div class="num">10+</div><div class="lbl">Neon pen colors</div></div>
+          <div><div class="num">4K</div><div class="lbl">Export ready</div></div>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" data-delay="2">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="phone-topbar">
+              <svg class="logo" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="20" stroke="#9E8CFF" stroke-width="3"/><circle cx="24" cy="24" r="10" stroke="#67E8F9" stroke-width="2.5"/></svg>
+              <span class="ttl">Spirograph Alpha</span>
+            </div>
+            <div class="phone-canvas-wrap"><canvas id="spiroCanvas"></canvas></div>
+            <div class="phone-controls">
+              <div class="phone-slider" style="--w:72%"></div>
+              <div class="phone-slider" style="--w:45%"></div>
+              <div class="phone-slider" style="--w:88%"></div>
+            </div>
+            <div class="phone-ad">Advertisement</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Features</span>
+        <h2>A studio built for endless creativity</h2>
+        <p>Every control is fluid, colorful, and precise — designed to make the math of beautiful curves feel effortless.</p>
+      </div>
+      <div class="features">
+        <div class="card reveal" data-delay="1"><div class="ico">⚙️</div><h3>Precise gear control</h3><p>Dial in radii, ratios, and pen offset with smooth sliders and watch the curve respond in real time.</p></div>
+        <div class="card reveal" data-delay="2"><div class="ico">🎨</div><h3>Vivid color layers</h3><p>Stack multiple neon strokes, blend palettes, and bake layers into rich, multi-color compositions.</p></div>
+        <div class="card reveal" data-delay="3"><div class="ico">✨</div><h3>Live animation</h3><p>Press play and watch the pen trace your pattern with a glowing trail, frame by frame.</p></div>
+        <div class="card reveal" data-delay="1"><div class="ico">💾</div><h3>Save &amp; revisit</h3><p>Keep a personal catalog of designs and reopen any project exactly where you left off.</p></div>
+        <div class="card reveal" data-delay="2"><div class="ico">📤</div><h3>High-res export</h3><p>Export crisp images of your art — perfect for wallpapers, prints, and sharing.</p></div>
+        <div class="card reveal" data-delay="3"><div class="ico">🌓</div><h3>Light &amp; dark</h3><p>A clean, airy light mode and a deep, glow-accented dark mode — switch any time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>From gears to gallery in three steps</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal" data-delay="1"><div class="n">1</div><h3>Set your gears</h3><p>Choose ring and wheel sizes and a pen position to define your base curve.</p></div>
+        <div class="step reveal" data-delay="2"><div class="n">2</div><h3>Color &amp; layer</h3><p>Pick vivid pen colors and stack layers to build depth and contrast.</p></div>
+        <div class="step reveal" data-delay="3"><div class="n">3</div><h3>Animate &amp; export</h3><p>Play the animation, then export a high-resolution image to keep or share.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CTA -->
+  <section id="download">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2>Start creating today</h2>
+        <p>Download Spirograph Alpha and turn simple geometry into hypnotic, shareable art.</p>
+        <div class="hero-actions" style="justify-content:center">
+          <a class="btn btn-primary" href="#" aria-label="Download on Google Play">▸ Get it on Google Play</a>
+          <a class="btn btn-ghost" href="#features">See what's inside</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <div class="foot-grid">
+      <a class="brand" href="index.html">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" stroke="#9E8CFF" stroke-width="2.4"/><circle cx="24" cy="24" r="11" stroke="#67E8F9" stroke-width="2"/></svg></span>
+        Spirograph <b>Alpha</b>
+      </a>
+      <nav class="foot-links">
+        <a href="index.html">Home</a>
+        <a href="#features">Features</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </nav>
+    </div>
+    <p class="foot-note">&copy; <span data-year>2026</span> Spirograph Alpha. All rights reserved. Made with vibrant geometry.</p>
+  </div>
+</footer>
+
+<script src="assets/spiro.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

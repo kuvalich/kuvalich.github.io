@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Calender Studio – Design Beautiful Calendars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:     #FAF6F0;
+    --warm-50:   #FDF8F2;
+    --warm-100:  #F5EDE0;
+    --warm-200:  #E8D5BE;
+    --warm-400:  #C49A6C;
+    --warm-500:  #A87548;
+    --warm-600:  #8B5E35;
+    --warm-700:  #6B4226;
+    --warm-800:  #3D2410;
+    --warm-900:  #1E0E04;
+    --burnt:     #C4622D;
+    --burnt-l:   #E07A45;
+    --amber:     #D4870F;
+    --amber-l:   #F0A830;
+    --sand:      #D4AA7D;
+    --sage:      #7A9E7E;
+    --dusk:      #9B6B8A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-900);
+    color: var(--cream);
+    overflow-x: hidden;
+  }
+
+  /* ── Noise grain overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.35;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 2.5rem;
+    backdrop-filter: blur(20px);
+    background: rgba(30,14,4,0.72);
+    border-bottom: 1px solid rgba(196,98,45,0.15);
+    animation: fadeDown 0.8s ease both;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.02em;
+    color: var(--cream);
+  }
+  .nav-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--burnt-l);
+    box-shadow: 0 0 14px var(--burnt-l);
+    animation: pulse 2.4s ease infinite;
+  }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    color: var(--warm-400);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Hero text card — crossfading real photos behind text */
+  .hero-text-card {
+    position: relative;
+    padding: 3rem 3.5rem 2.8rem;
+    border-radius: 28px;
+    overflow: hidden;
+    max-width: 780px;
+    width: 100%;
+  }
+  .hero-bg-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: inherit;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero-bg-img.active { opacity: 1; }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: rgba(16, 6, 1, 0.62);
+    border-radius: inherit;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-text-card > *:not(.hero-bg-img):not(.hero-overlay) { position: relative; z-index: 2; }
+
+  /* warm blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.18;
+    animation: float 8s ease-in-out infinite;
+    z-index: 1;
+  }
+  .blob-1 { width: 600px; height: 600px; background: var(--burnt);  top: -100px; left: -150px; animation-delay: 0s; }
+  .blob-2 { width: 400px; height: 400px; background: var(--amber);  top: 20%;   right: -100px; animation-delay: 2s; }
+  .blob-3 { width: 350px; height: 350px; background: var(--sand);   bottom: 0;  left: 30%; animation-delay: 4s; }
+
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(196,98,45,0.15);
+    border: 1px solid rgba(196,98,45,0.4);
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--burnt-l);
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--burnt-l); }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.8s 0.5s ease both;
+    text-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  }
+  .hero h1 .accent { color: var(--burnt-l); font-style: italic; }
+
+  .hero p {
+    max-width: 520px;
+    margin: 1.8rem auto 0;
+    color: var(--warm-200);
+    font-size: 1.1rem;
+    line-height: 1.75;
+    font-weight: 400;
+    animation: fadeUp 0.8s 0.7s ease both;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  .cta-row {
+    display: flex; gap: 1rem; margin-top: 2.8rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.9s ease both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--burnt);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: 0 0 30px rgba(196,98,45,0.45);
+  }
+  .btn-primary:hover { transform: translateY(-2px); background: var(--burnt-l); box-shadow: 0 0 50px rgba(224,122,69,0.55); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(196,98,45,0.25);
+    color: var(--warm-200);
+    padding: 0.85rem 2rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover { transform: translateY(-2px); background: rgba(196,98,45,0.12); }
+
+  /* ── SCREENSHOTS SECTION ── */
+  .screenshots {
+    padding: 6rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--burnt-l); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: var(--warm-400); font-size: 1rem; max-width: 480px; margin: 0 auto 4rem;
+    line-height: 1.7;
+  }
+
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .screenshot-frame {
+    background: var(--warm-800);
+    border: 1px solid rgba(196,98,45,0.12);
+    border-radius: 24px;
+    aspect-ratio: 9/16;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: default;
+    position: relative;
+  }
+  .screenshot-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(196,98,45,0.06) 0%, transparent 60%);
+    border-radius: inherit;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .screenshot-frame:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(196,98,45,0.2); }
+  .screenshot-frame img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    padding: 6rem 2rem;
+    background: rgba(255,255,255,0.012);
+    border-top: 1px solid rgba(196,98,45,0.1);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    max-width: 960px;
+    margin: 4rem auto 0;
+  }
+  .feature-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: transform 0.25s, border-color 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--burnt-l)), transparent);
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(196,98,45,0.2); }
+  .feature-icon {
+    width: 44px; height: 44px;
+    background: rgba(196,98,45,0.1);
+    border: 1px solid rgba(196,98,45,0.18);
+    border-radius: 11px;
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .feature-icon svg { width: 20px; height: 20px; stroke: var(--burnt-l); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; }
+  .feature-card p { color: var(--warm-400); font-size: 0.9rem; line-height: 1.7; }
+
+  /* ── HOW IT WORKS ── */
+  .how {
+    padding: 6rem 2rem;
+    text-align: center;
+    background: rgba(255,255,255,0.015);
+    border-top: 1px solid rgba(196,98,45,0.1);
+    border-bottom: 1px solid rgba(196,98,45,0.1);
+  }
+  .steps {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 2rem; margin-top: 4rem;
+    max-width: 900px; margin-left: auto; margin-right: auto;
+  }
+  .step {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    flex: 1; min-width: 180px; max-width: 220px;
+  }
+  .step-num {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--burnt), var(--burnt-l));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 0 24px rgba(196,98,45,0.45);
+  }
+  .step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .step p { color: var(--warm-400); font-size: 0.875rem; line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 3rem 2rem;
+    border-top: 1px solid rgba(196,98,45,0.1);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--warm-200);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .footer-links { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+  .footer-links a {
+    color: var(--warm-500);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--warm-200); }
+  footer p { color: var(--warm-600); font-size: 0.8rem; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown { from { opacity:0; transform: translateY(-16px); } to { opacity:1; transform: translateY(0); } }
+  @keyframes fadeUp   { from { opacity:0; transform: translateY(24px); }  to { opacity:1; transform: translateY(0); } }
+  @keyframes float    { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.04); } }
+  @keyframes pulse    { 0%,100% { box-shadow: 0 0 8px var(--burnt-l); } 50% { box-shadow: 0 0 22px var(--burnt-l); } }
+
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  .d1{transition-delay:0.1s} .d2{transition-delay:0.2s} .d3{transition-delay:0.3s}
+  .d4{transition-delay:0.4s} .d5{transition-delay:0.5s} .d6{transition-delay:0.6s}
+
+  @media(max-width:600px){
+    nav { padding: 1rem 1.2rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .hero-text-card { padding: 2rem 1.5rem; border-radius: 20px; }
+    .screenshot-grid { grid-template-columns: 1fr; max-width: 280px; }
+    .features-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-dot"></div>
+    Calender Studio
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#formats">Formats</a>
+    <a href="policy-priv.html">Privacy</a>
+    <a href="tos.html">Terms</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="hero-text-card">
+    <img class="hero-bg-img active" src="realtabletop.png" alt="" aria-hidden="true"/>
+    <img class="hero-bg-img" src="realwall.png" alt="" aria-hidden="true"/>
+    <div class="hero-overlay"></div>
+    <div class="badge"><span class="badge-dot"></span> Available on Android</div>
+    <h1>Design beautiful<br/><span class="accent">desk &amp; wall calendars</span><br/>in seconds.</h1>
+  </div>
+
+  <p>Pick a month, add your photo, choose a theme — export a print-ready Tabletop Desk or Wall Poster Calendar you'll actually want to display.</p>
+
+  <div class="cta-row">
+    <a href="#" class="btn-primary">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3.18 23.76A1.5 1.5 0 0 0 5 23.5l17.1-9.87a1.5 1.5 0 0 0 0-2.62L5 1.14A1.5 1.5 0 0 0 2.75 2.5v19a1.5 1.5 0 0 0 .43 1.26z"/></svg>
+      Get on Google Play
+    </a>
+    <a href="#screenshots" class="btn-ghost">
+      See screenshots
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="screenshots" id="screenshots">
+  <div class="section-label">Screenshots</div>
+  <h2 class="section-title">See it in action</h2>
+  <p class="section-sub">Add your photos, pick your month, and export — all from one clean screen.</p>
+
+  <div class="screenshot-grid">
+    <div class="screenshot-frame reveal d1">
+      <img src="home.png" alt="Home screen – choose format" loading="lazy"/>
+    </div>
+    <div class="screenshot-frame reveal d2">
+      <img src="wallcalapp.png" alt="Wall calendar preview" loading="lazy"/>
+    </div>
+    <div class="screenshot-frame reveal d3">
+      <img src="tabletopapp.png" alt="Tabletop desk calendar editor" loading="lazy"/>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div style="text-align:center">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need</h2>
+    <p class="section-sub">Powerful tools, zero complexity.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal d1" style="--card-accent:var(--burnt-l)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+      <h3>Your Photos</h3>
+      <p>Add photos from your gallery. Pinch to zoom and drag to reposition the image right on the card — what you see is what you get.</p>
+    </div>
+    <div class="feature-card reveal d2" style="--card-accent:var(--amber-l)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="9.5" r="1.2" fill="var(--burnt-l)" stroke="none"/><circle cx="14.5" cy="8.5" r="1.2" fill="var(--burnt-l)" stroke="none"/><circle cx="16.5" cy="13" r="1.2" fill="var(--burnt-l)" stroke="none"/><path d="M9 15a3 3 0 0 0 6 0"/></svg></div>
+      <h3>Themes & Borders</h3>
+      <p>Multiple colour themes — Warm Parchment, Midnight Copper, Obsidian Ink and more — plus scenic backgrounds like Sunset, Forest, and Ocean.</p>
+    </div>
+    <div class="feature-card reveal d3" style="--card-accent:var(--sage)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="9" x2="12" y2="9"/></svg></div>
+      <h3>Flexible Layout</h3>
+      <p>Swap the photo to either side with a single tap. The 12-month wall layout supports two independent photo slots.</p>
+    </div>
+    <div class="feature-card reveal d4" style="--card-accent:var(--dusk)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      <h3>Export JPG & PDF</h3>
+      <p>Desk calendar exports at 2200×1375 px (A5 @ 300 dpi). Wall poster exports at 2400×3600 px (A3 @ 300 dpi). Both print-shop ready.</p>
+    </div>
+    <div class="feature-card reveal d5" style="--card-accent:var(--burnt-l)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></div>
+      <h3>Save & Reload Designs</h3>
+      <p>Name and save your favourite designs. Reload them any month to instantly generate next month's calendar — zero rework.</p>
+    </div>
+    <div class="feature-card reveal d6" style="--card-accent:var(--amber-l)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="18" x2="14" y2="18"/><path d="M17 17l2 2 4-4" stroke-width="1.9"/></svg></div>
+      <h3>Notes & Writing Lines</h3>
+      <p>Add a short quote or caption. Toggle ruled writing lines on or off — perfect for hand-writing notes on a printed copy.</p>
+    </div>
+    <div class="feature-card reveal d1" style="--card-accent:var(--sage)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1.2" fill="var(--burnt-l)" stroke="none"/><circle cx="12" cy="15" r="1.2" fill="var(--burnt-l)" stroke="none"/></svg></div>
+      <h3>Special Dates</h3>
+      <p>Pin important birthdays and anniversaries to your wall poster. They appear as a highlighted events list at the bottom of the calendar.</p>
+    </div>
+    <div class="feature-card reveal d2" style="--card-accent:var(--dusk)">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1.2" fill="var(--burnt-l)" stroke="none"/></svg></div>
+      <h3>100% Private</h3>
+      <p>Everything stays on your device. No account, no cloud, no tracking. Your photos and designs never leave your phone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS -->
+<section class="how" id="formats" style="background:rgba(255,255,255,0.008)">
+  <div class="section-label">Two Formats</div>
+  <h2 class="section-title">Pick your <em style="font-family:'DM Serif Display',serif;font-style:italic;">format</em></h2>
+  <p class="section-sub" style="margin-bottom:3rem">Both formats export at print-shop quality.</p>
+  <div class="steps" style="gap:3rem">
+    <div class="step reveal d1" style="max-width:280px">
+      <div class="feature-icon" style="margin-bottom:1rem;width:56px;height:56px;border-radius:14px"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--burnt-l);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><rect x="2" y="5" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="7" y1="5" x2="7" y2="2"/><line x1="17" y1="5" x2="17" y2="2"/></svg></div>
+      <h4 style="font-size:1.1rem;margin-bottom:0.6rem">Tabletop Desk Calendar</h4>
+      <p>A5 landscape layout with a photo on one side and the monthly grid on the other. Export as JPG (2200×1375 px) or PDF. Flip the photo to either side with one tap.</p>
+    </div>
+    <div class="step reveal d2" style="max-width:280px">
+      <div class="feature-icon" style="margin-bottom:1rem;width:56px;height:56px;border-radius:14px"><svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:var(--burnt-l);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"><rect x="4" y="3" width="16" height="20" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="8" y1="3" x2="8" y2="1"/><line x1="16" y1="3" x2="16" y2="1"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg></div>
+      <h4 style="font-size:1.1rem;margin-bottom:0.6rem">Wall Poster Calendar</h4>
+      <p>A3 portrait poster in 1-month, 6-month, or full 12-month layouts. Add up to two personal photos, set a scenic theme, pin special dates, and export at 2400×3600 px.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">Ready in <em style="font-family:'DM Serif Display',serif; font-style:italic;">minutes</em></h2>
+  <div class="steps">
+    <div class="step reveal d1">
+      <div class="step-num">1</div>
+      <h4>Choose a format</h4>
+      <p>Pick Tabletop Desk or Wall Poster from the home screen.</p>
+    </div>
+    <div class="step reveal d2">
+      <div class="step-num">2</div>
+      <h4>Add photo & style</h4>
+      <p>Select from your gallery. Pinch-zoom to frame the shot, then pick a theme.</p>
+    </div>
+    <div class="step reveal d3">
+      <div class="step-num">3</div>
+      <h4>Set the month</h4>
+      <p>Tap directly on the preview or use the Date panel. Add special dates for wall calendars.</p>
+    </div>
+    <div class="step reveal d4">
+      <div class="step-num">4</div>
+      <h4>Export & print</h4>
+      <p>Save as JPG or PDF and take it straight to a print shop — or print at home.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="nav-dot" style="width:8px;height:8px"></div>
+    Calender Studio
+  </div>
+  <div class="footer-links">
+    <a href="policy-priv.html">Privacy Policy</a>
+    <a href="tos.html">Terms of Service</a>
+  </div>
+  <p>© 2026 SGS Infotech. All rights reserved.</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Hero background crossfade carousel
+  const heroBgs = document.querySelectorAll('.hero-bg-img');
+  let current = 0;
+  setInterval(() => {
+    heroBgs[current].classList.remove('active');
+    current = (current + 1) % heroBgs.length;
+    heroBgs[current].classList.add('active');
+  }, 4500);
+</script>
+</body>
+</html>

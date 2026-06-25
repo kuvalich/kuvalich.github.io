@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>safralph</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #080a0f;
+      --surface: #0f1117;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00f5a0;
+      --accent2: #00c8ff;
+      --text: #e8eaf0;
+      --muted: #5a5f72;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom Cursor ── */
+    #cursor {
+      position: fixed; top: 0; left: 0;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, background 0.2s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed; top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,245,160,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), opacity 0.2s;
+    }
+    body:has(a:hover) #cursor, body:has(button:hover) #cursor { transform: scale(2.5); background: var(--accent2); }
+    body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { transform: translate(-50%,-50%) scale(1.6); opacity: 0.3; }
+
+    /* ── Noise Overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.4;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.4rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      border-color: var(--border);
+      background: rgba(8,10,15,0.7);
+      backdrop-filter: blur(18px);
+    }
+    .nav-logo {
+      font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--muted); text-decoration: none; letter-spacing: 0.05em;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; padding: 0 3rem;
+      position: relative; overflow: hidden;
+    }
+
+    #hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,245,160,0.12), transparent 70%);
+      top: -100px; right: -100px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,200,255,0.09), transparent 70%);
+      bottom: 0; left: -80px;
+      animation-delay: -6s;
+    }
+    @keyframes drift {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-20px) scale(1.05); }
+      66% { transform: translate(-15px,25px) scale(0.97); }
+    }
+
+    .hero-label {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      letter-spacing: 0.18em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 1.6rem;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-name {
+      font-size: clamp(3.8rem, 10vw, 9rem);
+      font-weight: 800; line-height: 0.9;
+      letter-spacing: -0.04em;
+      opacity: 0; animation: fadeUp 0.9s 0.4s forwards;
+    }
+    .hero-name .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      margin-top: 2rem;
+      font-family: var(--font-mono); font-size: 0.95rem;
+      color: var(--muted); line-height: 1.7; max-width: 440px;
+      opacity: 0; animation: fadeUp 0.9s 0.6s forwards;
+    }
+    .hero-tags {
+      display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2.5rem;
+      opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
+    }
+    .tag {
+      padding: 0.4rem 1rem; border: 1px solid var(--border);
+      border-radius: 99px; font-family: var(--font-mono);
+      font-size: 0.75rem; color: var(--muted);
+      transition: border-color 0.3s, color 0.3s, background 0.3s;
+    }
+    .tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,245,160,0.06); }
+
+    .hero-scroll {
+      position: absolute; bottom: 2.4rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase;
+      opacity: 0; animation: fadeIn 1s 1.4s forwards;
+    }
+    .scroll-line {
+      width: 1px; height: 48px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.15); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ── Section Base ── */
+    section { position: relative; z-index: 1; }
+    .section-inner { max-width: 1100px; margin: 0 auto; padding: 7rem 3rem; }
+    .section-label {
+      font-family: var(--font-mono); font-size: 0.72rem;
+      letter-spacing: 0.2em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .section-label::before {
+      content: ''; display: inline-block;
+      width: 28px; height: 1px; background: var(--accent);
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.1; margin-bottom: 3.5rem;
+    }
+
+    /* ── Apps Section ── */
+    #apps { background: var(--bg); }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .app-card {
+      position: relative; overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-decoration: none; color: var(--text);
+      transition: border-color 0.35s, transform 0.35s cubic-bezier(0.23,1,0.32,1);
+    }
+    .app-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(0,245,160,0.07), transparent 60%);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .app-card:hover::before { opacity: 1; }
+    .app-card:hover { border-color: rgba(0,245,160,0.3); transform: translateY(-4px); }
+
+    .app-card-num {
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.12em;
+      margin-bottom: 1.2rem;
+    }
+    .app-card-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,245,160,0.15), rgba(0,200,255,0.08));
+      border: 1px solid rgba(0,245,160,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.4rem;
+      color: var(--accent);
+    }
+    .app-card-icon svg {
+      width: 20px; height: 20px;
+    }
+    .app-card-title {
+      font-size: 1.05rem; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 0.5rem;
+    }
+    .app-card-desc {
+      font-family: var(--font-mono); font-size: 0.78rem;
+      color: var(--muted); line-height: 1.65;
+      margin-bottom: 1.6rem;
+    }
+    .app-card-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--font-mono); font-size: 0.73rem;
+      color: var(--accent); letter-spacing: 0.06em;
+      transition: gap 0.2s;
+    }
+    .app-card:hover .app-card-link { gap: 0.85rem; }
+    .app-card-link svg { transition: transform 0.2s; }
+    .app-card:hover .app-card-link svg { transform: translateX(3px); }
+
+    .app-card-add {
+      border-style: dashed;
+      border-color: rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.7rem; text-align: center;
+      min-height: 200px;
+      cursor: default;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .app-card-add:hover {
+      border-color: rgba(0,245,160,0.25);
+      background: rgba(0,245,160,0.03);
+      transform: none;
+    }
+    .app-card-add-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 1.3rem;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .app-card-add:hover .app-card-add-icon { border-color: var(--accent); color: var(--accent); }
+    .app-card-add p {
+      font-family: var(--font-mono); font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ── Contact Section ── */
+    #contact { background: var(--bg); }
+
+    .contact-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2rem;
+    }
+    .contact-inner h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .contact-inner p {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 420px;
+    }
+
+    .btn-email {
+      position: relative; overflow: hidden;
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1rem 2.2rem;
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em;
+      text-decoration: none;
+      cursor: none;
+      transition: color 0.35s;
+    }
+    .btn-email::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--accent);
+      transform: translateY(102%);
+      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
+    }
+    .btn-email:hover { color: var(--bg); }
+    .btn-email:hover::before { transform: translateY(0); }
+    .btn-email span { position: relative; z-index: 1; display: flex; align-items: center; gap: 0.6rem; }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2.5rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer p { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+    .footer-dot { color: var(--accent); }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.23,1,0.32,1);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
+
+    @media (max-width: 768px) {
+      .section-inner { padding: 5rem 1.5rem; }
+      #hero { padding: 0 1.5rem; }
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      footer { flex-direction: column; gap: 0.6rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a class="nav-logo" href="#hero">safralph<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#apps">apps</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <p class="hero-label">Available for projects</p>
+    <h1 class="hero-name">
+      safralph<span class="line2">builds things.</span>
+    </h1>
+    <p class="hero-sub">
+      Full-stack developer &amp; tech enthusiast crafting seamless web experiences from frontend polish to backend power.
+    </p>
+    <div class="hero-tags">
+      <span class="tag">Web Development</span>
+      <span class="tag">Full Stack Apps</span>
+      <span class="tag">UI/UX</span>
+      <span class="tag">APIs</span>
+      <span class="tag">Tech Enthusiast</span>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- APPS -->
+  <section id="apps">
+    <div class="section-inner">
+      <p class="section-label reveal">Projects</p>
+      <h2 class="section-title reveal reveal-d1">Things I've built.</h2>
+      <div class="apps-grid">
+
+        <!-- Cosmo Clock -->
+        <a href="./cosmoclock/" class="app-card reveal reveal-d1">
+          <p class="app-card-num">01</p>
+          <div class="app-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <h3 class="app-card-title">Cosmo Clock</h3>
+          <p class="app-card-desc">A beautifully crafted world clock app that elevates timekeeping with a cosmic, starfield aesthetic.</p>
+          <span class="app-card-link">
+            Visit app
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- DualPlay -->
+        <a href="./dualplay/" class="app-card reveal reveal-d2">
+          <p class="app-card-num">02</p>
+          <div class="app-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 14v-2a9 9 0 0 1 18 0v2"></path>
+              <rect x="2" y="14" width="5" height="7" rx="1.5"></rect>
+              <rect x="17" y="14" width="5" height="7" rx="1.5"></rect>
+            </svg>
+          </div>
+          <h3 class="app-card-title">DualPlay</h3>
+          <p class="app-card-desc">Two songs. Two ears. A unique audio experience that lets you play different tracks in each earbud.</p>
+          <span class="app-card-link">
+            Visit app
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Neon 2048 -->
+        <a href="./clock2048/" class="app-card reveal reveal-d3">
+          <p class="app-card-num">03</p>
+          <div class="app-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+          </div>
+          <h3 class="app-card-title">Neon 2048</h3>
+          <p class="app-card-desc">A sleek neon-synthwave take on the classic sliding puzzle game with a live digital clock mode.</p>
+          <span class="app-card-link">
+            Visit app
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Spirograph Alpha -->
+        <a href="./spirographalpha/" class="app-card reveal reveal-d4">
+          <p class="app-card-num">04</p>
+          <div class="app-card-icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="24" cy="24" r="20"></circle>
+              <circle cx="24" cy="24" r="11" opacity="0.8"></circle>
+              <circle cx="24" cy="13" r="2.6" fill="currentColor"></circle>
+            </svg>
+          </div>
+          <h3 class="app-card-title">Spirograph Alpha</h3>
+          <p class="app-card-desc">Draw mesmerizing geometric art with a vibrant, fluid spirograph studio. Tune gears, layer colors, and export.</p>
+          <span class="app-card-link">
+            Visit app
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- Calender Studio -->
+        <a href="./calenderstudio/" class="app-card reveal reveal-d1">
+          <p class="app-card-num">05</p>
+          <div class="app-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <h3 class="app-card-title">Calender Studio</h3>
+          <p class="app-card-desc">Design beautiful tabletop desk and wall poster calendars in seconds. Export print-ready layouts with custom photos.</p>
+          <span class="app-card-link">
+            Visit app
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
+
+        <!-- More coming -->
+        <div class="app-card app-card-add reveal reveal-d2">
+          <div class="app-card-add-icon">+</div>
+          <p>More coming soon</p>
+        </div>
+
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-inner">
+      <p class="section-label reveal">Contact</p>
+      <div class="contact-inner">
+        <h2 class="reveal reveal-d1">Let's work<br>together.</h2>
+        <p class="reveal reveal-d2">Have a project in mind or just want to say hello? Hit the button below and let's talk.</p>
+        <a class="btn-email reveal reveal-d3" href="mailto:a123developer@gmail.com">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h11A1.5 1.5 0 0 1 15 3.5v9A1.5 1.5 0 0 1 13.5 14h-11A1.5 1.5 0 0 1 1 12.5v-9z" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M1 4l7 5 7-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Send me an email
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 <span class="footer-dot">safralph</span></p>
+    <p>Built with precision<span class="footer-dot"> ·</span> no frameworks</p>
+  </footer>
+
+  <script>
+    // ── Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    });
+
+    function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // ── Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // ── Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => io.observe(el));
+
+    // ── Card gradient follow cursor
+    document.querySelectorAll('.app-card:not(.app-card-add)').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width * 100)}%`);
+        card.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100)}%`);
+      });
+    });
+  </script>
+</body>
+</html>

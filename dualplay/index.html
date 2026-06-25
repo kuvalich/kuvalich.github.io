@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DualPlay — Play Two Songs at Once</title>
+<meta name="description" content="DualPlay is a warm, retro music player for Android with true dual-channel playback, gapless audio, playlists, lyrics, sleep timer and more." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+:root{
+  /* Light — warm cream / forest sunlight */
+  --bg:#F5ECD7; --surface:#EDE0C4; --surface-high:#E6D5B8;
+  --text-1:#3B2012; --text-2:#6B4C3B; --text-3:#A38A73; --divider:#D9C9AB;
+  --outline:#3B2012; --shadow:#3B2012;
+  /* Accents (unchanged from app) */
+  --terracotta:#C4501A; --amber-gold:#E8952A; --warm-amber:#D4892A;
+  --sage:#7A9E7E; --muted-sage:#8FBCAA; --forest:#5B8266; --rose:#D4826A;
+  --on-accent:#FFFDF5;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#2A1D10; --surface:#362515; --surface-high:#453020;
+    --text-1:#F5ECD7; --text-2:#D4C0A8; --text-3:#9E8A73; --divider:#4D3B28;
+    --outline:#14100A; --shadow:#14100A;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text-1);
+  font-family:'Nunito',system-ui,sans-serif; font-weight:700;
+  line-height:1.6; overflow-x:hidden;
+}
+h1,h2,h3,.display{font-family:'Fredoka',sans-serif;font-weight:700;letter-spacing:.2px;line-height:1.15}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* Sticker-Pop primitives */
+.sticker{
+  background:var(--surface); border:2.5px solid var(--outline);
+  border-radius:24px; box-shadow:6px 6px 0 var(--shadow);
+}
+.pill{
+  display:inline-flex;align-items:center;gap:10px;
+  border:2.5px solid var(--outline); border-radius:100px;
+  padding:14px 26px; font-family:'Fredoka';font-weight:600;font-size:1.05rem;
+  box-shadow:4px 4px 0 var(--outline); transition:transform .12s ease, box-shadow .12s ease;
+  cursor:pointer;
+}
+.pill:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--outline)}
+.pill.primary{background:var(--terracotta);color:var(--on-accent)}
+.pill.ghost{background:var(--surface);color:var(--text-1)}
+
+/* Header */
+header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:2.5px solid var(--outline)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:12px;font-family:'Fredoka';font-weight:700;font-size:1.35rem}
+.logo{
+  width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--terracotta),var(--amber-gold));
+  border:2.5px solid var(--outline);box-shadow:3px 3px 0 var(--outline);color:var(--on-accent);
+}
+.logo svg{width:22px;height:22px}
+.nav-links{display:flex;gap:26px;align-items:center;font-size:.95rem}
+.nav-links a{font-family:'Fredoka';font-weight:500;color:var(--text-2)}
+.nav-links a:hover{color:var(--terracotta)}
+@media(max-width:680px){.nav-links{display:none}}
+
+/* Hero */
+.hero{padding:80px 0 60px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+@media(max-width:860px){.hero-grid{grid-template-columns:1fr;text-align:center}}
+.tag{display:inline-flex;align-items:center;gap:8px;background:var(--surface-high);
+  border:2.5px solid var(--outline);border-radius:100px;padding:7px 16px;
+  font-size:.78rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-2);box-shadow:3px 3px 0 var(--outline);margin-bottom:24px}
+.hero h1{font-size:clamp(2.6rem,6vw,4.2rem);margin-bottom:20px}
+.hero h1 .hl{color:var(--terracotta)}
+.hero p.lead{font-size:1.2rem;color:var(--text-2);font-weight:600;max-width:520px;margin-bottom:32px}
+@media(max-width:860px){.hero p.lead{margin-left:auto;margin-right:auto}}
+.cta-row{display:flex;gap:16px;flex-wrap:wrap}
+@media(max-width:860px){.cta-row{justify-content:center}}
+
+/* Phone mock */
+.phone{
+  width:280px;height:560px;margin:0 auto;border-radius:42px;
+  background:var(--surface);border:3px solid var(--outline);
+  box-shadow:10px 10px 0 var(--shadow);padding:14px;position:relative;
+}
+.phone .screen{width:100%;height:100%;border-radius:30px;overflow:hidden;
+  background:linear-gradient(160deg,var(--bg),var(--surface-high));border:2px solid var(--outline);
+  display:flex;flex-direction:column;padding:22px 18px}
+.phone .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:90px;height:7px;border-radius:100px;background:var(--outline)}
+.scr-title{font-family:'Fredoka';font-weight:700;font-size:1.4rem;margin:18px 0 16px}
+.dual-card{border:2.5px solid var(--outline);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:4px 4px 0 var(--outline)}
+.dual-card.left{background:var(--sage)}
+.dual-card.right{background:var(--rose)}
+.dual-card .lbl{font-family:'Fredoka';font-weight:600;font-size:.8rem;color:var(--on-accent);opacity:.95}
+.dual-card .nm{color:var(--on-accent);font-weight:800;font-size:1rem}
+.bars{display:flex;gap:4px;align-items:flex-end;height:30px;margin-top:10px}
+.bars span{flex:1;background:var(--on-accent);border-radius:3px;opacity:.9;animation:eq 1s ease-in-out infinite}
+.bars span:nth-child(2){animation-delay:.15s}.bars span:nth-child(3){animation-delay:.3s}
+.bars span:nth-child(4){animation-delay:.45s}.bars span:nth-child(5){animation-delay:.6s}
+@keyframes eq{0%,100%{height:30%}50%{height:100%}}
+.knob{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:14px}
+.knob .play{width:60px;height:60px;border-radius:100px;background:var(--terracotta);border:2.5px solid var(--outline);box-shadow:4px 4px 0 var(--outline);display:grid;place-items:center;color:var(--on-accent)}
+.knob .ctl{width:44px;height:44px;border-radius:100px;background:var(--surface-high);border:2.5px solid var(--outline);box-shadow:3px 3px 0 var(--outline);display:grid;place-items:center;color:var(--text-1)}
+
+/* Sections */
+section{padding:72px 0}
+.section-head{text-align:center;max-width:640px;margin:0 auto 52px}
+.section-head h2{font-size:clamp(2rem,4.5vw,2.8rem);margin-bottom:14px}
+.section-head p{color:var(--text-2);font-size:1.1rem;font-weight:600}
+
+/* Feature grid */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:860px){.feat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr}}
+.feat{padding:28px;background:var(--surface);border:2.5px solid var(--outline);border-radius:24px;box-shadow:6px 6px 0 var(--shadow);transition:transform .15s ease,box-shadow .15s ease}
+.feat:hover{transform:translate(-2px,-2px);box-shadow:9px 9px 0 var(--shadow)}
+.feat .ic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;border:2.5px solid var(--outline);box-shadow:3px 3px 0 var(--outline);margin-bottom:18px;color:var(--on-accent)}
+.feat h3{font-size:1.3rem;margin-bottom:8px}
+.feat p{color:var(--text-2);font-weight:600;font-size:.98rem}
+.ic svg{width:26px;height:26px}
+
+/* Dual highlight */
+.dual-hi{background:var(--surface-high)}
+.dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media(max-width:860px){.dual-grid{grid-template-columns:1fr}}
+.chips{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.chip{flex:1;min-width:160px;padding:22px;border-radius:20px;border:2.5px solid var(--outline);box-shadow:5px 5px 0 var(--outline);color:var(--on-accent)}
+.chip.l{background:var(--sage)}.chip.r{background:var(--rose)}
+.chip .t{font-family:'Fredoka';font-weight:600;font-size:1.1rem}
+.chip .s{font-size:.85rem;opacity:.95;font-weight:700}
+.dual-hi ul{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:14px}
+.dual-hi li{display:flex;gap:12px;align-items:flex-start;font-weight:700;color:var(--text-1)}
+.dot{flex:none;width:22px;height:22px;border-radius:100px;background:var(--terracotta);border:2px solid var(--outline);display:grid;place-items:center;color:var(--on-accent);font-size:.7rem;margin-top:2px}
+
+/* CTA band */
+.cta-band{text-align:center}
+.cta-card{padding:56px 32px;text-align:center;background:linear-gradient(135deg,var(--terracotta),var(--amber-gold));color:var(--on-accent);border:3px solid var(--outline);border-radius:30px;box-shadow:8px 8px 0 var(--outline)}
+.cta-card h2{font-size:clamp(2rem,4.5vw,2.8rem);margin-bottom:14px;color:var(--on-accent)}
+.cta-card p{font-weight:700;font-size:1.1rem;margin-bottom:28px;opacity:.95}
+.cta-card .pill.primary{background:var(--on-accent);color:var(--terracotta);box-shadow:4px 4px 0 var(--outline)}
+
+/* Footer */
+footer{border-top:2.5px solid var(--outline);padding:48px 0 36px;background:var(--surface)}
+.foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.foot .brand{font-size:1.15rem}
+.foot-links{display:flex;gap:24px;font-family:'Fredoka';font-weight:500;color:var(--text-2)}
+.foot-links a:hover{color:var(--terracotta)}
+.copy{width:100%;text-align:center;color:var(--text-3);font-size:.85rem;margin-top:28px;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="index.html">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg></span>
+      DualPlay
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#dual">Dual Channel</a>
+      <a href="#download">Download</a>
+      <a href="privacy-policy.html">Privacy</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="tag">🎧 Local Music Player</span>
+      <h1>Play two songs <span class="hl">at once.</span></h1>
+      <p class="lead">DualPlay is a warm, retro music player with true dual-channel playback — mix two tracks live like a radio tuner, all from your own library. No accounts, no streaming, just your music.</p>
+      <div class="cta-row">
+        <a class="pill primary" href="#download">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5V3.5c0-.6.7-1 1.2-.6l13.4 8.5c.5.3.5 1 0 1.3L4.2 21.1c-.5.3-1.2 0-1.2-.6z"/></svg>
+          Get it on Android
+        </a>
+        <a class="pill ghost" href="#features">See features</a>
+      </div>
+    </div>
+    <div>
+      <div class="phone">
+        <span class="notch"></span>
+        <div class="screen">
+          <div class="scr-title">Dual Channel</div>
+          <div class="dual-card left">
+            <div class="lbl">◀ LEFT SOURCE</div>
+            <div class="nm">Sunset Drive</div>
+            <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="dual-card right">
+            <div class="lbl">RIGHT SOURCE ▶</div>
+            <div class="nm">Midnight Loop</div>
+            <div class="bars"><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="knob">
+            <span class="ctl"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6 9 12l11 6z"/></svg></span>
+            <span class="play"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="ctl"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM4 6l11 6L4 18z"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Everything you love, beautifully simple</h2>
+      <p>A full-featured offline player wrapped in a cozy, hand-drawn “sticker” interface.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="ic" style="background:var(--terracotta)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><h3>Dual Channel</h3><p>Load two independent sources and play them together, balance the mix, and sync them like a live radio tuner.</p></div>
+      <div class="feat"><div class="ic" style="background:var(--forest)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h4l3-8 4 16 3-8h2"/></svg></div><h3>Gapless Playback</h3><p>Tracks are pre-buffered so albums and mixes flow seamlessly with zero silence between songs.</p></div>
+      <div class="feat"><div class="ic" style="background:var(--amber-gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h13M3 12h9M3 18h13M19 8v9M16 14l3 3 3-3"/></svg></div><h3>Playlists &amp; Queue</h3><p>Build playlists, reorder your queue on the fly, and organize by artist and album in a snappy library.</p></div>
+      <div class="feat"><div class="ic" style="background:var(--sage)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 5h16M4 12h10M4 19h16"/><circle cx="19" cy="12" r="2"/></svg></div><h3>Synced Lyrics</h3><p>Follow along with time-synced lyrics that scroll with the beat, right on the now-playing screen.</p></div>
+      <div class="feat"><div class="ic" style="background:var(--forest)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg></div><h3>Sleep Timer</h3><p>Drift off to your favorite tracks — set a timer and DualPlay fades out and stops automatically.</p></div>
+      <div class="feat"><div class="ic" style="background:var(--rose)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg></div><h3>Light &amp; Dark</h3><p>A warm cream daytime look and cozy candlelit cocoa mode — switch any time in settings.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="dual" class="dual-hi">
+  <div class="wrap dual-grid">
+    <div>
+      <div class="chips">
+        <div class="chip l"><div class="t">◀ Left Channel</div><div class="s">Cool sage &amp; forest tones</div></div>
+        <div class="chip r"><div class="t">Right Channel ▶</div><div class="s">Warm rose &amp; amber tones</div></div>
+      </div>
+    </div>
+    <div>
+      <h2>Two sources, one stage</h2>
+      <p style="color:var(--text-2);font-weight:600;margin-top:10px">DualPlay’s signature feature lets you run two players side by side — color-coded so you always know which is which.</p>
+      <ul>
+        <li><span class="dot">✓</span> Pick any two songs or queues from your library</li>
+        <li><span class="dot">✓</span> Independent play, pause and volume per channel</li>
+        <li><span class="dot">✓</span> One-tap sync to line both tracks up instantly</li>
+        <li><span class="dot">✓</span> A radio-tuner dial that makes mixing feel playful</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="download" class="cta-band">
+  <div class="wrap">
+    <div class="cta-card">
+      <h2>Ready to hear it differently?</h2>
+      <p>Download DualPlay and turn your music collection into something new.</p>
+      <a class="pill primary" href="#">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5V3.5c0-.6.7-1 1.2-.6l13.4 8.5c.5.3.5 1 0 1.3L4.2 21.1c-.5.3-1.2 0-1.2-.6z"/></svg>
+        Get it on Google Play
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html">
+        <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/></svg></span>
+        DualPlay
+      </a>
+      <div class="foot-links">
+        <a href="index.html">Home</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="copy">&copy; 2026 DualPlay. All rights reserved. Made with ♥ for music lovers.</div>
+  </div>
+</footer>
+</body>
+</html>

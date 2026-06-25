@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Cosmo Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Syne:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-top: #0B0D1A;
+    --bg-bottom: #151830;
+    --accent: #A78BFA;
+    --accent2: #7C5CE0;
+    --glow: #A78BFA;
+    --text-primary: #F0EEFF;
+    --text-secondary: #9A8EBB;
+    --card: #10122A;
+    --surface: #181B38;
+    --inactive: #3E3D5C;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    color: var(--text-primary);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  #starfield {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(11,13,26,0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(167,139,250,0.1);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: 1.1rem; letter-spacing: 0.15em;
+    color: var(--text-primary); text-shadow: 0 0 20px var(--glow);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    color: var(--text-secondary); text-decoration: none;
+    font-size: 0.85rem; letter-spacing: 0.07em; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .wrapper {
+    position: relative; z-index: 2;
+    max-width: 800px; margin: 0 auto;
+    padding: 140px 32px 80px;
+  }
+  .page-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 100px; padding: 5px 16px;
+    font-size: 0.72rem; letter-spacing: 0.14em;
+    color: var(--accent); margin-bottom: 24px;
+  }
+  h1 {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+    filter: drop-shadow(0 0 30px rgba(167,139,250,0.4));
+  }
+  .effective-date {
+    font-size: 0.82rem; color: var(--text-secondary);
+    letter-spacing: 0.08em; margin-bottom: 48px;
+  }
+  .divider {
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 48px 0;
+  }
+  .section-block {
+    background: var(--card);
+    border: 1px solid rgba(167,139,250,0.1);
+    border-radius: 20px; padding: 32px;
+    margin-bottom: 24px;
+    transition: border-color 0.3s;
+  }
+  .section-block:hover { border-color: rgba(167,139,250,0.25); }
+  .section-block h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.95rem; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-block h2::before {
+    content: '◆'; font-size: 0.5rem;
+    color: var(--accent2);
+  }
+  .section-block p, .section-block li {
+    font-size: 0.95rem; line-height: 1.75;
+    color: var(--text-secondary); margin-bottom: 12px;
+  }
+  .section-block ul { padding-left: 20px; }
+  .section-block li { margin-bottom: 8px; }
+  .section-block a { color: var(--accent); }
+  .highlight-box {
+    background: rgba(167,139,250,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px; margin: 16px 0;
+    font-size: 0.9rem; color: var(--text-primary);
+    line-height: 1.6;
+  }
+  footer {
+    border-top: 1px solid rgba(167,139,250,0.1);
+    padding: 40px 24px 32px; text-align: center;
+    position: relative; z-index: 2;
+  }
+  .footer-logo {
+    font-family: 'Orbitron', monospace; font-weight: 900;
+    font-size: 1rem; letter-spacing: 0.2em;
+    color: var(--text-primary); text-shadow: 0 0 20px var(--glow);
+    margin-bottom: 20px;
+  }
+  .footer-links {
+    display: flex; gap: 28px; justify-content: center;
+    flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .footer-links a {
+    color: var(--text-secondary); text-decoration: none;
+    font-size: 0.82rem; letter-spacing: 0.05em; transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent); }
+  footer p { font-size: 0.76rem; color: var(--inactive); letter-spacing: 0.05em; }
+  @media(max-width:640px) {
+    nav { padding: 14px 18px; }
+    .nav-links { gap: 14px; }
+    .wrapper { padding: 110px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <a href="index.html" class="nav-logo">COSMO CLOCK</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="terms.html">Terms</a>
+    <a href="https://play.google.com/store" target="_blank" rel="noopener">Get App</a>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="page-badge">🔒 LEGAL</div>
+  <h1>Privacy Policy</h1>
+  <p class="effective-date">Effective Date: May 27, 2026 &nbsp;·&nbsp; Last Updated: May 27, 2026</p>
+
+  <div class="section-block">
+    <h2>Overview</h2>
+    <div class="highlight-box">
+      Cosmo Clock is designed with your privacy as a priority. We do not collect, store, or sell your personal data. The app functions entirely on your device.
+    </div>
+    <p>This Privacy Policy describes how Cosmo Clock ("we", "our", or "the app") handles information when you use our mobile application available on Google Play. By using Cosmo Clock, you agree to the practices described in this policy.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Information We Collect</h2>
+    <p>Cosmo Clock collects <strong style="color:var(--text-primary);">no personal information</strong> from users. Specifically:</p>
+    <ul>
+      <li>We do not collect your name, email address, phone number, or any other personally identifiable information.</li>
+      <li>We do not require account creation or registration.</li>
+      <li>We do not track your location.</li>
+      <li>We do not access your contacts, messages, photos, or files.</li>
+      <li>We do not collect usage analytics or behavioral data.</li>
+    </ul>
+  </div>
+
+  <div class="section-block">
+    <h2>Data Stored Locally on Your Device</h2>
+    <p>Cosmo Clock stores the following preferences locally on your device using Android's SharedPreferences storage. This data never leaves your device:</p>
+    <ul>
+      <li><strong style="color:var(--text-primary);">Selected Theme</strong> — which of the 4 visual themes you have chosen.</li>
+      <li><strong style="color:var(--text-primary);">Time Format</strong> — whether you prefer 12-hour or 24-hour time display.</li>
+    </ul>
+    <p>This data can be cleared at any time by uninstalling the app or clearing app data in your device settings.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Permissions</h2>
+    <p>Cosmo Clock requests only the permissions necessary for its core features:</p>
+    <ul>
+      <li><strong style="color:var(--text-primary);">Audio playback</strong> — required to play the ambient sleep soundscapes. Audio is generated synthetically on-device and no recordings are accessed or stored.</li>
+      <li><strong style="color:var(--text-primary);">Keep screen on</strong> — allows the clock display to remain active while in use as a bedside clock.</li>
+    </ul>
+    <p>We do not request internet access, storage, camera, microphone, or location permissions.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Advertising</h2>
+    <p>Cosmo Clock may display banner advertisements served by Google AdMob. Google AdMob may collect certain device identifiers and usage data to serve relevant ads. This is governed by Google's Privacy Policy, which you can review at <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+    <p>You can opt out of personalized advertising through your device's ad settings at any time.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Third-Party Services</h2>
+    <p>Cosmo Clock may use the following third-party services:</p>
+    <ul>
+      <li><strong style="color:var(--text-primary);">Google AdMob</strong> — for in-app advertising. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+      <li><strong style="color:var(--text-primary);">Google Play Services</strong> — for app distribution and updates.</li>
+    </ul>
+    <p>We do not integrate any other third-party analytics, crash reporting, or tracking SDKs.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Children's Privacy</h2>
+    <p>Cosmo Clock does not knowingly collect any personal information from children under 13 years of age. Since we collect no personal data at all, the app is safe for general audiences. If you believe a child has provided personal information through the app, please contact us and we will take appropriate action.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Data Security</h2>
+    <p>Since Cosmo Clock does not transmit personal data over the internet, there is no risk of a data breach involving your personal information. Your theme preferences and time format settings remain exclusively on your device.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we do, we will revise the "Last Updated" date at the top of this page. We encourage you to review this policy periodically. Continued use of the app after any changes constitutes your acceptance of the updated policy.</p>
+  </div>
+
+  <div class="section-block">
+    <h2>Contact Us</h2>
+    <p>If you have any questions, concerns, or requests regarding this Privacy Policy or your data, please contact us:</p>
+    <div class="highlight-box">
+      📧 Email: a123developer@gmail.com
+    </div>
+    <p>We aim to respond to all inquiries within 5 business days.</p>
+  </div>
+
+  <div class="divider"></div>
+  <p style="font-size:0.82rem; color:var(--inactive); letter-spacing:0.05em;">This privacy policy applies to the Cosmo Clock app (Android) published on Google Play.</p>
+</div>
+
+<footer>
+  <div class="footer-logo">COSMO CLOCK</div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="https://play.google.com/store" target="_blank" rel="noopener">Google Play</a>
+  </div>
+  <p>© 2026 Cosmo Clock. All rights reserved.</p>
+</footer>
+
+<script>
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars=[], W, H;
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+window.addEventListener('resize',resize); resize();
+function init(){
+  stars=[];
+  const c=['#ffffff','#D4C5F9','#A78BFA','#7C5CE0'];
+  const n=Math.floor((W*H)/4000);
+  for(let i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+0.3,op:Math.random(),spd:Math.random()*0.015+0.004,dir:Math.random()>0.5?1:-1,col:c[Math.floor(Math.random()*c.length)]});
+}
+init(); window.addEventListener('resize',init);
+(function anim(){
+  ctx.clearRect(0,0,W,H);
+  for(const s of stars){
+    s.op+=s.spd*s.dir;
+    if(s.op>1){s.op=1;s.dir=-1;}
+    if(s.op<0.08){s.op=0.08;s.dir=1;}
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=s.col; ctx.globalAlpha=s.op; ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(anim);
+})();
+</script>
+</body>
+</html>
