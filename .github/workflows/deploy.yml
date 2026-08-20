@@ -1,0 +1,53 @@
+name: Deploy website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout portfolio
+        uses: actions/checkout@v7
+
+      - name: Checkout private apps
+        uses: actions/checkout@v7
+        with:
+          repository: safralph/web-apps
+          token: ${{ secrets.WEB_APPS_TOKEN }}
+          path: private-apps
+
+      - name: Copy apps into website
+        run: |
+          cp -r private-apps/calenderstudio .
+          cp -r private-apps/clock2048 .
+          cp -r private-apps/cosmoclock .
+          cp -r private-apps/dualplay .
+          cp -r private-apps/spirographalpha .
+          cp -r private-apps/vedicplus .
+          rm -rf private-apps
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
