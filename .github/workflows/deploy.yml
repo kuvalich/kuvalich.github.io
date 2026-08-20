@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout portfolio
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Checkout private apps
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           repository: safralph/web-apps
           token: ${{ secrets.WEB_APPS_TOKEN }}
