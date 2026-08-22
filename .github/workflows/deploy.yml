@@ -32,12 +32,9 @@ jobs:
 
       - name: Copy apps into website
         run: |
-          cp -r private-apps/calenderstudio .
-          cp -r private-apps/clock2048 .
-          cp -r private-apps/cosmoclock .
-          cp -r private-apps/dualplay .
-          cp -r private-apps/spirographalpha .
-          cp -r private-apps/vedicplus .
+          for dir in private-apps/*/; do
+            cp -r "$dir" .
+          done
           rm -rf private-apps
 
       - name: Configure GitHub Pages
