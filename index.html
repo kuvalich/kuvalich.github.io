@@ -1,627 +1,400 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-time="day" data-motion="full">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>safralph</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>safralph — Seaside Pixel Port</title>
+  <meta name="description" content="safralph — full-stack developer & tech enthusiast crafting seamless web experiences from frontend polish to backend power." />
+  <meta name="theme-color" content="#0E3B4A" />
 
-    :root {
-      --bg: #080a0f;
-      --surface: #0f1117;
-      --border: rgba(255,255,255,0.07);
-      --accent: #00f5a0;
-      --accent2: #00c8ff;
-      --text: #e8eaf0;
-      --muted: #5a5f72;
-      --font-display: 'Syne', sans-serif;
-      --font-mono: 'DM Mono', monospace;
-    }
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="safralph — builds things" />
+  <meta property="og:description" content="Full-stack developer & tech enthusiast. A little seaside pixel-port on the web." />
+  <meta property="og:url" content="https://safralph.github.io/" />
+  <meta name="twitter:card" content="summary" />
 
-    html { scroll-behavior: smooth; }
+  <!-- Pixel lighthouse favicon (inline SVG data URI) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230E3B4A'/%3E%3Crect x='6' y='2' width='4' height='2' fill='%23FF8360'/%3E%3Crect x='5' y='4' width='6' height='7' fill='%23F4FBF7'/%3E%3Crect x='5' y='6' width='6' height='1' fill='%23FF8360'/%3E%3Crect x='5' y='9' width='6' height='1' fill='%23FF8360'/%3E%3Crect x='4' y='11' width='8' height='3' fill='%238B6F4E'/%3E%3Crect x='11' y='5' width='3' height='2' fill='%23FFD98E'/%3E%3C/svg%3E" />
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-display);
-      overflow-x: hidden;
-      cursor: none;
-    }
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Press+Start+2P&display=swap" rel="stylesheet" />
 
-    /* ── Custom Cursor ── */
-    #cursor {
-      position: fixed; top: 0; left: 0;
-      width: 12px; height: 12px;
-      background: var(--accent);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transition: transform 0.15s ease, background 0.2s;
-      mix-blend-mode: screen;
-    }
-    #cursor-ring {
-      position: fixed; top: 0; left: 0;
-      width: 36px; height: 36px;
-      border: 1px solid rgba(0,245,160,0.4);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
-      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), opacity 0.2s;
-    }
-    body:has(a:hover) #cursor, body:has(button:hover) #cursor { transform: scale(2.5); background: var(--accent2); }
-    body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { transform: translate(-50%,-50%) scale(1.6); opacity: 0.3; }
-
-    /* ── Noise Overlay ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0; opacity: 0.4;
-    }
-
-    /* ── Nav ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 1.4rem 3rem;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
-    }
-    nav.scrolled {
-      border-color: var(--border);
-      background: rgba(8,10,15,0.7);
-      backdrop-filter: blur(18px);
-    }
-    .nav-logo {
-      font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 2.4rem; list-style: none; }
-    .nav-links a {
-      font-family: var(--font-mono); font-size: 0.78rem;
-      color: var(--muted); text-decoration: none; letter-spacing: 0.05em;
-      transition: color 0.2s;
-      position: relative;
-    }
-    .nav-links a::after {
-      content: ''; position: absolute; bottom: -3px; left: 0;
-      width: 0; height: 1px; background: var(--accent);
-      transition: width 0.3s ease;
-    }
-    .nav-links a:hover { color: var(--accent); }
-    .nav-links a:hover::after { width: 100%; }
-
-    /* ── Hero ── */
-    #hero {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      justify-content: center; padding: 0 3rem;
-      position: relative; overflow: hidden;
-    }
-
-    #hero::after {
-      content: '';
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      animation: drift 12s ease-in-out infinite;
-    }
-    .orb-1 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(0,245,160,0.12), transparent 70%);
-      top: -100px; right: -100px;
-      animation-delay: 0s;
-    }
-    .orb-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(0,200,255,0.09), transparent 70%);
-      bottom: 0; left: -80px;
-      animation-delay: -6s;
-    }
-    @keyframes drift {
-      0%, 100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(30px,-20px) scale(1.05); }
-      66% { transform: translate(-15px,25px) scale(0.97); }
-    }
-
-    .hero-label {
-      font-family: var(--font-mono); font-size: 0.75rem;
-      letter-spacing: 0.18em; color: var(--accent);
-      text-transform: uppercase; margin-bottom: 1.6rem;
-      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
-    }
-    .hero-name {
-      font-size: clamp(3.8rem, 10vw, 9rem);
-      font-weight: 800; line-height: 0.9;
-      letter-spacing: -0.04em;
-      opacity: 0; animation: fadeUp 0.9s 0.4s forwards;
-    }
-    .hero-name .line2 {
-      display: block;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-sub {
-      margin-top: 2rem;
-      font-family: var(--font-mono); font-size: 0.95rem;
-      color: var(--muted); line-height: 1.7; max-width: 440px;
-      opacity: 0; animation: fadeUp 0.9s 0.6s forwards;
-    }
-    .hero-tags {
-      display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2.5rem;
-      opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
-    }
-    .tag {
-      padding: 0.4rem 1rem; border: 1px solid var(--border);
-      border-radius: 99px; font-family: var(--font-mono);
-      font-size: 0.75rem; color: var(--muted);
-      transition: border-color 0.3s, color 0.3s, background 0.3s;
-    }
-    .tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,245,160,0.06); }
-
-    .hero-scroll {
-      position: absolute; bottom: 2.4rem; left: 50%;
-      transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-      font-family: var(--font-mono); font-size: 0.65rem;
-      letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase;
-      opacity: 0; animation: fadeIn 1s 1.4s forwards;
-    }
-    .scroll-line {
-      width: 1px; height: 48px;
-      background: linear-gradient(to bottom, var(--accent), transparent);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
-    @keyframes scrollPulse {
-      0%, 100% { opacity: 0.3; transform: scaleY(1); }
-      50% { opacity: 1; transform: scaleY(1.15); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    /* ── Section Base ── */
-    section { position: relative; z-index: 1; }
-    .section-inner { max-width: 1100px; margin: 0 auto; padding: 7rem 3rem; }
-    .section-label {
-      font-family: var(--font-mono); font-size: 0.72rem;
-      letter-spacing: 0.2em; color: var(--accent);
-      text-transform: uppercase; margin-bottom: 0.9rem;
-      display: flex; align-items: center; gap: 0.8rem;
-    }
-    .section-label::before {
-      content: ''; display: inline-block;
-      width: 28px; height: 1px; background: var(--accent);
-    }
-    .section-title {
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 800; letter-spacing: -0.03em;
-      line-height: 1.1; margin-bottom: 3.5rem;
-    }
-
-    /* ── Apps Section ── */
-    #apps { background: var(--bg); }
-
-    .apps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.2rem;
-    }
-
-    .app-card {
-      position: relative; overflow: hidden;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      text-decoration: none; color: var(--text);
-      transition: border-color 0.35s, transform 0.35s cubic-bezier(0.23,1,0.32,1);
-    }
-    .app-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(0,245,160,0.07), transparent 60%);
-      opacity: 0; transition: opacity 0.4s;
-    }
-    .app-card:hover::before { opacity: 1; }
-    .app-card:hover { border-color: rgba(0,245,160,0.3); transform: translateY(-4px); }
-
-    .app-card-num {
-      font-family: var(--font-mono); font-size: 0.65rem;
-      color: var(--muted); letter-spacing: 0.12em;
-      margin-bottom: 1.2rem;
-    }
-    .app-card-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, rgba(0,245,160,0.15), rgba(0,200,255,0.08));
-      border: 1px solid rgba(0,245,160,0.2);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1.4rem;
-      color: var(--accent);
-    }
-    .app-card-icon svg {
-      width: 20px; height: 20px;
-    }
-    .app-card-title {
-      font-size: 1.05rem; font-weight: 700;
-      letter-spacing: -0.02em; margin-bottom: 0.5rem;
-    }
-    .app-card-desc {
-      font-family: var(--font-mono); font-size: 0.78rem;
-      color: var(--muted); line-height: 1.65;
-      margin-bottom: 1.6rem;
-    }
-    .app-card-link {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: var(--font-mono); font-size: 0.73rem;
-      color: var(--accent); letter-spacing: 0.06em;
-      transition: gap 0.2s;
-    }
-    .app-card:hover .app-card-link { gap: 0.85rem; }
-    .app-card-link svg { transition: transform 0.2s; }
-    .app-card:hover .app-card-link svg { transform: translateX(3px); }
-
-    .app-card-add {
-      border-style: dashed;
-      border-color: rgba(255,255,255,0.1);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 0.7rem; text-align: center;
-      min-height: 200px;
-      cursor: default;
-      transition: border-color 0.3s, background 0.3s;
-    }
-    .app-card-add:hover {
-      border-color: rgba(0,245,160,0.25);
-      background: rgba(0,245,160,0.03);
-      transform: none;
-    }
-    .app-card-add-icon {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 1px solid var(--muted);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-size: 1.3rem;
-      transition: border-color 0.3s, color 0.3s;
-    }
-    .app-card-add:hover .app-card-add-icon { border-color: var(--accent); color: var(--accent); }
-    .app-card-add p {
-      font-family: var(--font-mono); font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    /* ── Divider ── */
-    .divider {
-      width: 100%; height: 1px;
-      background: linear-gradient(to right, transparent, var(--border), transparent);
-      margin: 0;
-    }
-
-    /* ── Contact Section ── */
-    #contact { background: var(--bg); }
-
-    .contact-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 2rem;
-    }
-    .contact-inner h2 {
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-    }
-    .contact-inner p {
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 420px;
-    }
-
-    .btn-email {
-      position: relative; overflow: hidden;
-      display: inline-flex; align-items: center; gap: 0.7rem;
-      background: transparent;
-      border: 1px solid var(--accent);
-      border-radius: 12px;
-      padding: 1rem 2.2rem;
-      color: var(--accent);
-      font-family: var(--font-display);
-      font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em;
-      text-decoration: none;
-      cursor: none;
-      transition: color 0.35s;
-    }
-    .btn-email::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: var(--accent);
-      transform: translateY(102%);
-      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
-    }
-    .btn-email:hover { color: var(--bg); }
-    .btn-email:hover::before { transform: translateY(0); }
-    .btn-email span { position: relative; z-index: 1; display: flex; align-items: center; gap: 0.6rem; }
-
-    /* ── Footer ── */
-    footer {
-      padding: 2.5rem 3rem;
-      border-top: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    footer p { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
-    .footer-dot { color: var(--accent); }
-
-    /* ── Scroll reveal ── */
-    .reveal {
-      opacity: 0; transform: translateY(32px);
-      transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.23,1,0.32,1);
-    }
-    .reveal.visible { opacity: 1; transform: none; }
-    .reveal-d1 { transition-delay: 0.1s; }
-    .reveal-d2 { transition-delay: 0.2s; }
-    .reveal-d3 { transition-delay: 0.3s; }
-    .reveal-d4 { transition-delay: 0.4s; }
-
-    @media (max-width: 768px) {
-      .section-inner { padding: 5rem 1.5rem; }
-      #hero { padding: 0 1.5rem; }
-      nav { padding: 1.2rem 1.5rem; }
-      .nav-links { gap: 1.5rem; }
-      footer { flex-direction: column; gap: 0.6rem; text-align: center; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body>
+<body data-weather="clear">
 
-  <div id="cursor"></div>
-  <div id="cursor-ring"></div>
+  <a id="skip" href="#about">Skip to content</a>
 
-  <!-- NAV -->
-  <nav id="nav">
-    <a class="nav-logo" href="#hero">safralph<span>.</span></a>
-    <ul class="nav-links">
-      <li><a href="#apps">apps</a></li>
-      <li><a href="#contact">contact</a></li>
-    </ul>
-  </nav>
+  <!-- ============ HIDDEN SVG ATLAS ============ -->
+  <svg id="atlas" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- gull: simple pixel bird -->
+      <symbol id="px-gull" viewBox="0 0 13 6">
+        <rect x="0" y="3" width="2" height="1" fill="currentColor"/>
+        <rect x="2" y="2" width="2" height="1" fill="currentColor"/>
+        <rect x="4" y="1" width="2" height="1" fill="currentColor"/>
+        <rect x="6" y="2" width="1" height="1" fill="currentColor"/>
+        <rect x="7" y="1" width="2" height="1" fill="currentColor"/>
+        <rect x="9" y="2" width="2" height="1" fill="currentColor"/>
+        <rect x="11" y="3" width="2" height="1" fill="currentColor"/>
+      </symbol>
+      <!-- cloud -->
+      <symbol id="px-cloud" viewBox="0 0 20 10">
+        <rect x="4" y="4" width="12" height="4" fill="currentColor"/>
+        <rect x="2" y="6" width="16" height="2" fill="currentColor"/>
+        <rect x="6" y="2" width="6" height="2" fill="currentColor"/>
+        <rect x="10" y="3" width="6" height="2" fill="currentColor"/>
+      </symbol>
+      <!-- fish -->
+      <symbol id="px-fish" viewBox="0 0 17 9">
+        <rect x="2" y="3" width="10" height="3" fill="currentColor"/>
+        <rect x="3" y="2" width="7" height="1" fill="currentColor"/>
+        <rect x="3" y="6" width="7" height="1" fill="currentColor"/>
+        <rect x="12" y="2" width="3" height="1" fill="currentColor"/>
+        <rect x="12" y="6" width="3" height="1" fill="currentColor"/>
+        <rect x="13" y="3" width="2" height="3" fill="currentColor"/>
+        <rect x="4" y="4" width="1" height="1" fill="#0E3B4A"/>
+      </symbol>
+      <!-- wave band (repeating crest) -->
+      <symbol id="px-wave" viewBox="0 0 40 12" preserveAspectRatio="none">
+        <rect x="0"  y="6" width="8" height="6" fill="currentColor"/>
+        <rect x="4"  y="4" width="8" height="2" fill="currentColor"/>
+        <rect x="8"  y="6" width="8" height="6" fill="currentColor"/>
+        <rect x="14" y="4" width="8" height="2" fill="currentColor"/>
+        <rect x="18" y="6" width="8" height="6" fill="currentColor"/>
+        <rect x="24" y="4" width="8" height="2" fill="currentColor"/>
+        <rect x="28" y="6" width="8" height="6" fill="currentColor"/>
+        <rect x="34" y="4" width="8" height="2" fill="currentColor"/>
+        <rect x="0"  y="8" width="40" height="4" fill="currentColor"/>
+      </symbol>
+      <!-- shell -->
+      <symbol id="px-shell" viewBox="0 0 11 10">
+        <rect x="4" y="0" width="3" height="1" fill="currentColor"/>
+        <rect x="2" y="1" width="7" height="2" fill="currentColor"/>
+        <rect x="1" y="3" width="9" height="4" fill="currentColor"/>
+        <rect x="2" y="7" width="7" height="2" fill="currentColor"/>
+        <rect x="5" y="2" width="1" height="6" fill="#0E3B4A"/>
+        <rect x="3" y="3" width="1" height="4" fill="#0E3B4A"/>
+        <rect x="7" y="3" width="1" height="4" fill="#0E3B4A"/>
+      </symbol>
+      <!-- anchor: the custom cursor sprite -->
+      <symbol id="px-anchor" viewBox="0 0 16 20">
+        <!-- dark outline pass -->
+        <rect x="5" y="0" width="6" height="5" fill="#071F29"/>
+        <rect x="6" y="4" width="4" height="15" fill="#071F29"/>
+        <rect x="2" y="5" width="12" height="3" fill="#071F29"/>
+        <rect x="1" y="12" width="3" height="6" fill="#071F29"/>
+        <rect x="12" y="12" width="3" height="6" fill="#071F29"/>
+        <rect x="3" y="16" width="10" height="4" fill="#071F29"/>
+        <!-- body -->
+        <rect x="6" y="1" width="4" height="1" fill="currentColor"/>
+        <rect x="6" y="3" width="4" height="1" fill="currentColor"/>
+        <rect x="5" y="1" width="1" height="3" fill="currentColor"/>
+        <rect x="10" y="1" width="1" height="3" fill="currentColor"/>
+        <rect x="7" y="5" width="2" height="13" fill="currentColor"/>
+        <rect x="3" y="6" width="10" height="1" fill="currentColor"/>
+        <rect x="2" y="13" width="1" height="4" fill="currentColor"/>
+        <rect x="13" y="13" width="1" height="4" fill="currentColor"/>
+        <rect x="3" y="16" width="2" height="2" fill="currentColor"/>
+        <rect x="11" y="16" width="2" height="2" fill="currentColor"/>
+        <rect x="4" y="17" width="8" height="2" fill="currentColor"/>
+      </symbol>
+      <!-- ship: 4-frame sprite strip, 32px cells (viewBox 128x24) -->
+      <symbol id="px-ship" viewBox="0 0 128 24">
+        <!-- frame 1 — level -->
+        <g>
+          <rect x="14" y="3" width="1" height="12" fill="#5c4832"/>
+          <rect x="15" y="4" width="8" height="7" fill="#F4FBF7"/>
+          <rect x="15" y="10" width="8" height="1" fill="#E0EDE6"/>
+          <rect x="22" y="5" width="1" height="5" fill="#E0EDE6"/>
+          <rect x="15" y="2" width="5" height="2" fill="#FF8360"/>
+          <rect x="7" y="15" width="18" height="4" fill="#8B6F4E"/>
+          <rect x="8" y="16" width="16" height="1" fill="#FF8360"/>
+          <rect x="9" y="19" width="14" height="2" fill="#071F29"/>
+        </g>
+        <!-- frame 2 — crest (1px up), sail full -->
+        <g transform="translate(32,0)">
+          <rect x="14" y="2" width="1" height="12" fill="#5c4832"/>
+          <rect x="15" y="3" width="9" height="7" fill="#F4FBF7"/>
+          <rect x="15" y="9" width="9" height="1" fill="#E0EDE6"/>
+          <rect x="23" y="4" width="1" height="5" fill="#E0EDE6"/>
+          <rect x="15" y="1" width="6" height="2" fill="#FF8360"/>
+          <rect x="7" y="14" width="18" height="4" fill="#8B6F4E"/>
+          <rect x="8" y="15" width="16" height="1" fill="#FF8360"/>
+          <rect x="9" y="18" width="14" height="2" fill="#071F29"/>
+        </g>
+        <!-- frame 3 — level, sail slack -->
+        <g transform="translate(64,0)">
+          <rect x="14" y="3" width="1" height="12" fill="#5c4832"/>
+          <rect x="15" y="4" width="7" height="7" fill="#F4FBF7"/>
+          <rect x="15" y="10" width="7" height="1" fill="#E0EDE6"/>
+          <rect x="21" y="5" width="1" height="5" fill="#E0EDE6"/>
+          <rect x="15" y="2" width="4" height="2" fill="#FF8360"/>
+          <rect x="7" y="15" width="18" height="4" fill="#8B6F4E"/>
+          <rect x="8" y="16" width="16" height="1" fill="#FF8360"/>
+          <rect x="9" y="19" width="14" height="2" fill="#071F29"/>
+        </g>
+        <!-- frame 4 — trough (1px down) -->
+        <g transform="translate(96,0)">
+          <rect x="14" y="4" width="1" height="12" fill="#5c4832"/>
+          <rect x="15" y="5" width="8" height="7" fill="#F4FBF7"/>
+          <rect x="15" y="11" width="8" height="1" fill="#E0EDE6"/>
+          <rect x="22" y="6" width="1" height="5" fill="#E0EDE6"/>
+          <rect x="15" y="3" width="5" height="2" fill="#FF8360"/>
+          <rect x="7" y="16" width="18" height="4" fill="#8B6F4E"/>
+          <rect x="8" y="17" width="16" height="1" fill="#FF8360"/>
+          <rect x="9" y="20" width="14" height="2" fill="#071F29"/>
+        </g>
+      </symbol>
+      <!-- galleon: the big moored ship in the harbour -->
+      <symbol id="px-galleon" viewBox="0 0 64 56">
+        <!-- rigging -->
+        <rect x="21" y="14" width="1" height="26" fill="#0E3B4A"/>
+        <rect x="45" y="18" width="1" height="22" fill="#0E3B4A"/>
+        <rect x="8"  y="36" width="18" height="1" fill="#0E3B4A"/>
+        <!-- fore mast -->
+        <rect x="22" y="6" width="2" height="34" fill="#5c4832"/>
+        <rect x="18" y="4" width="10" height="2" fill="#FF8360"/>
+        <!-- fore sails -->
+        <rect x="12" y="10" width="10" height="11" fill="#F4FBF7"/>
+        <rect x="12" y="19" width="10" height="2" fill="#E0EDE6"/>
+        <rect x="12" y="10" width="2" height="11" fill="#E0EDE6"/>
+        <rect x="13" y="24" width="9" height="9" fill="#F4FBF7"/>
+        <rect x="13" y="31" width="9" height="2" fill="#E0EDE6"/>
+        <!-- main mast -->
+        <rect x="40" y="10" width="2" height="30" fill="#5c4832"/>
+        <rect x="37" y="8"  width="8" height="2" fill="#FF8360"/>
+        <rect x="38" y="14" width="6" height="4" fill="#5c4832"/>
+        <!-- main sails -->
+        <rect x="42" y="20" width="11" height="10" fill="#F4FBF7"/>
+        <rect x="42" y="28" width="11" height="2" fill="#E0EDE6"/>
+        <rect x="51" y="21" width="2" height="8" fill="#E0EDE6"/>
+        <rect x="43" y="32" width="9" height="7" fill="#F4FBF7"/>
+        <rect x="43" y="37" width="9" height="2" fill="#E0EDE6"/>
+        <!-- bowsprit -->
+        <rect x="2" y="38" width="8" height="2" fill="#5c4832"/>
+        <!-- hull -->
+        <rect x="8"  y="40" width="48" height="9" fill="#8B6F4E"/>
+        <rect x="6"  y="42" width="2"  height="6" fill="#8B6F4E"/>
+        <rect x="56" y="42" width="3"  height="6" fill="#8B6F4E"/>
+        <rect x="50" y="36" width="8"  height="4" fill="#8B6F4E"/>
+        <rect x="9"  y="41" width="46" height="1" fill="#FF8360"/>
+        <!-- portholes -->
+        <rect x="16" y="43" width="2" height="2" fill="#FFD98E"/>
+        <rect x="24" y="43" width="2" height="2" fill="#FFD98E"/>
+        <rect x="32" y="43" width="2" height="2" fill="#FFD98E"/>
+        <rect x="40" y="43" width="2" height="2" fill="#FFD98E"/>
+        <!-- waterline + keel shadow -->
+        <rect x="8"  y="46" width="48" height="2" fill="#5c4832"/>
+        <rect x="10" y="48" width="44" height="3" fill="#071F29"/>
+      </symbol>
+    </defs>
+  </svg>
 
-  <!-- HERO -->
-  <section id="hero">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <p class="hero-label">Available for projects</p>
-    <h1 class="hero-name">
-      safralph<span class="line2">builds things.</span>
-    </h1>
-    <p class="hero-sub">
-      Full-stack developer &amp; tech enthusiast crafting seamless web experiences from frontend polish to backend power.
-    </p>
-    <div class="hero-tags">
-      <span class="tag">Web Development</span>
-      <span class="tag">Full Stack Apps</span>
-      <span class="tag">UI/UX</span>
-      <span class="tag">APIs</span>
-      <span class="tag">Tech Enthusiast</span>
-    </div>
-    <div class="hero-scroll">
-      <div class="scroll-line"></div>
-      <span>scroll</span>
-    </div>
-  </section>
+  <!-- ============ TOP BAR (nav + controls in one flex row) ============ -->
+  <header>
+    <nav id="nav" aria-label="Primary">
+      <a class="nav-logo" href="#home">safralph<b>.</b></a>
+      <ul id="nav-list">
+        <li id="nav-cursor" aria-hidden="true"><svg viewBox="0 0 12 12"><rect x="1" y="1" width="3" height="10" fill="currentColor"/><rect x="4" y="3" width="3" height="6" fill="currentColor"/><rect x="7" y="5" width="3" height="2" fill="currentColor"/></svg></li>
+        <li><a class="nav-link" href="#home">Home</a></li>
+        <li><a class="nav-link" href="#about">About</a></li>
+        <li><a class="nav-link" href="#skills">Skills</a></li>
+        <li><a class="nav-link" href="#projects">Projects</a></li>
+        <li><a class="nav-link" href="#contact">Contact</a></li>
+      </ul>
 
-  <div class="divider"></div>
+      <div id="controls">
+        <button class="ctl" id="theme-toggle" aria-label="Toggle day and night" title="Day / Night">
+          <svg class="icon-day" viewBox="0 0 16 16" aria-hidden="true"><rect x="7" y="1" width="2" height="2" fill="currentColor"/><rect x="7" y="13" width="2" height="2" fill="currentColor"/><rect x="1" y="7" width="2" height="2" fill="currentColor"/><rect x="13" y="7" width="2" height="2" fill="currentColor"/><rect x="5" y="5" width="6" height="6" fill="currentColor"/></svg>
+          <svg class="icon-night" viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="2" width="7" height="12" fill="currentColor"/><rect x="3" y="4" width="4" height="8" fill="#0d2c3e"/></svg>
+        </button>
+        <button class="ctl" id="sound-toggle" aria-label="Toggle sound" aria-pressed="false" title="Sound">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="6" width="3" height="4" fill="currentColor"/><rect x="5" y="4" width="3" height="8" fill="currentColor"/><rect id="snd-wave" x="10" y="6" width="2" height="4" fill="currentColor"/></svg>
+        </button>
+        <button class="ctl" id="motion-toggle" aria-label="Toggle motion" aria-pressed="true" title="Motion">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="3" height="3" fill="currentColor"/><rect x="10" y="7" width="3" height="3" fill="currentColor"/><rect x="5" y="10" width="3" height="3" fill="currentColor"/></svg>
+        </button>
+      </div>
 
-  <!-- APPS -->
-  <section id="apps">
-    <div class="section-inner">
-      <p class="section-label reveal">Projects</p>
-      <h2 class="section-title reveal reveal-d1">Things I've built.</h2>
-      <div class="apps-grid">
+      <button id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-list">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
 
-        <!-- Cosmo Clock -->
-        <a href="./cosmoclock/" class="app-card reveal reveal-d1">
-          <p class="app-card-num">01</p>
-          <div class="app-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </div>
-          <h3 class="app-card-title">Cosmo Clock</h3>
-          <p class="app-card-desc">A beautifully crafted world clock app that elevates timekeeping with a cosmic, starfield aesthetic.</p>
-          <span class="app-card-link">
-            Visit app
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- DualPlay -->
-        <a href="./dualplay/" class="app-card reveal reveal-d2">
-          <p class="app-card-num">02</p>
-          <div class="app-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 14v-2a9 9 0 0 1 18 0v2"></path>
-              <rect x="2" y="14" width="5" height="7" rx="1.5"></rect>
-              <rect x="17" y="14" width="5" height="7" rx="1.5"></rect>
-            </svg>
-          </div>
-          <h3 class="app-card-title">DualPlay</h3>
-          <p class="app-card-desc">Two songs. Two ears. A unique audio experience that lets you play different tracks in each earbud.</p>
-          <span class="app-card-link">
-            Visit app
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- Neon 2048 -->
-        <a href="./clock2048/" class="app-card reveal reveal-d3">
-          <p class="app-card-num">03</p>
-          <div class="app-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-            </svg>
-          </div>
-          <h3 class="app-card-title">Neon 2048</h3>
-          <p class="app-card-desc">A sleek neon-synthwave take on the classic sliding puzzle game with a live digital clock mode.</p>
-          <span class="app-card-link">
-            Visit app
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- Spirograph Alpha -->
-        <a href="./spirographalpha/" class="app-card reveal reveal-d4">
-          <p class="app-card-num">04</p>
-          <div class="app-card-icon">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="24" cy="24" r="20"></circle>
-              <circle cx="24" cy="24" r="11" opacity="0.8"></circle>
-              <circle cx="24" cy="13" r="2.6" fill="currentColor"></circle>
-            </svg>
-          </div>
-          <h3 class="app-card-title">Spirograph Alpha</h3>
-          <p class="app-card-desc">Draw mesmerizing geometric art with a vibrant, fluid spirograph studio. Tune gears, layer colors, and export.</p>
-          <span class="app-card-link">
-            Visit app
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- Calender Studio -->
-        <a href="./calenderstudio/" class="app-card reveal reveal-d1">
-          <p class="app-card-num">05</p>
-          <div class="app-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-          </div>
-          <h3 class="app-card-title">Calender Studio</h3>
-          <p class="app-card-desc">Design beautiful tabletop desk and wall poster calendars in seconds. Export print-ready layouts with custom photos.</p>
-          <span class="app-card-link">
-            Visit app
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
-
-        <!-- More coming -->
-        <div class="app-card app-card-add reveal reveal-d2">
-          <div class="app-card-add-icon">+</div>
-          <p>More coming soon</p>
+  <main>
+    <!-- ============ HERO ============ -->
+    <section id="home" aria-label="Harbour dawn">
+      <div class="parallax" aria-hidden="true">
+        <div class="layer layer--sky" data-depth="0.05">
+          <div class="stars"></div>
+          <div class="beam"></div>
+          <div class="sun"></div>
         </div>
-
-
+        <div class="layer layer--clouds" data-depth="0.15"></div>
+        <div class="layer layer--islands" data-depth="0.25">
+          <svg class="islands" viewBox="0 0 400 80" preserveAspectRatio="none"><path d="M0 80 L30 55 L70 62 L110 40 L160 58 L210 44 L260 60 L320 48 L360 58 L400 46 L400 80 Z" fill="currentColor"/></svg>
+          <svg class="lighthouse" viewBox="0 0 16 30"><rect x="5" y="2" width="6" height="20" fill="#F4FBF7"/><rect x="5" y="6" width="6" height="2" fill="#FF8360"/><rect x="5" y="12" width="6" height="2" fill="#FF8360"/><rect x="5" y="18" width="6" height="2" fill="#FF8360"/><rect x="4" y="0" width="8" height="2" fill="#FFD98E"/><rect x="3" y="22" width="10" height="8" fill="#8B6F4E"/></svg>
+          <svg class="galleon" viewBox="0 0 64 56"><use href="#px-galleon"/></svg>
+        </div>
+        <div class="layer layer--waves" data-depth="0.4">
+          <div class="wave-band wave-band--1"><svg viewBox="0 0 40 12" preserveAspectRatio="none"><use href="#px-wave"/></svg></div>
+          <div class="wave-band wave-band--2"><svg viewBox="0 0 40 12" preserveAspectRatio="none"><use href="#px-wave"/></svg></div>
+          <div class="glints"></div>
+        </div>
+        <div class="layer layer--dock" data-depth="0.6">
+          <svg class="fish" viewBox="0 0 17 9"><use href="#px-fish"/></svg>
+          <svg class="boat" viewBox="0 0 40 26"><rect x="4" y="14" width="32" height="8" fill="currentColor"/><rect x="2" y="18" width="36" height="4" fill="#0E3B4A"/><rect x="19" y="2" width="2" height="12" fill="#8B6F4E"/><path d="M21 4 L33 12 L21 12 Z" fill="#F4FBF7"/></svg>
+          <button id="shell" aria-label="A curious shell"><svg viewBox="0 0 11 10"><use href="#px-shell"/></svg></button>
+          <svg class="dock-svg" viewBox="0 0 400 60" preserveAspectRatio="none">
+            <rect x="0" y="20" width="400" height="10" fill="currentColor"/>
+            <rect x="0" y="30" width="400" height="30" fill="#0E3B4A"/>
+            <rect x="30" y="30" width="8" height="30" fill="currentColor"/>
+            <rect x="120" y="30" width="8" height="30" fill="currentColor"/>
+            <rect x="250" y="30" width="8" height="30" fill="currentColor"/>
+            <rect x="350" y="30" width="8" height="30" fill="currentColor"/>
+          </svg>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="section-inner">
-      <p class="section-label reveal">Contact</p>
-      <div class="contact-inner">
-        <h2 class="reveal reveal-d1">Let's work<br>together.</h2>
-        <p class="reveal reveal-d2">Have a project in mind or just want to say hello? Hit the button below and let's talk.</p>
-        <a class="btn-email reveal reveal-d3" href="mailto:a123developer@gmail.com">
-          <span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h11A1.5 1.5 0 0 1 15 3.5v9A1.5 1.5 0 0 1 13.5 14h-11A1.5 1.5 0 0 1 1 12.5v-9z" stroke="currentColor" stroke-width="1.3"/>
-              <path d="M1 4l7 5 7-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-            </svg>
-            Send me an email
-          </span>
-        </a>
+      <div class="hero-content">
+        <span class="plate"><span class="dot"></span> Available for projects</span>
+        <h1 class="hero-name">safralph<span class="l2">builds things.</span></h1>
+        <p class="hero-sub">Full-stack developer &amp; tech enthusiast, docked at a little pixel harbour on the web.</p>
+        <div><a class="btn btn--coral btn--sail sail-in" id="set-sail" href="#projects">Set sail <span class="sail-arrow" aria-hidden="true">▸</span></a></div>
       </div>
-    </div>
-  </section>
 
-  <!-- FOOTER -->
+      <div class="scroll-cue" aria-hidden="true">SCROLL<div class="bar"></div></div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section id="about">
+      <div class="section-inner">
+        <span class="section-kicker">Captain's Log</span>
+        <h2 class="section-title">About</h2>
+        <div class="dialogue">
+          <span class="who">safralph</span>
+          <div class="panel box">
+            <p class="type-wrap"><span id="typed" data-text="Full-stack developer & tech enthusiast crafting seamless web experiences — from frontend polish to backend power. Always shipping, always tinkering with the next idea.">
+              <span class="rest">Full-stack developer &amp; tech enthusiast crafting seamless web experiences — from frontend polish to backend power. Always shipping, always tinkering with the next idea.</span><span class="caret">▼</span>
+            </span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section id="skills">
+      <div class="section-inner">
+        <span class="section-kicker">Inventory</span>
+        <h2 class="section-title">Skills &amp; Tools</h2>
+        <div class="inv-grid reveal">
+          <div class="inv-slot" style="--i:0" tabindex="0">
+            <div class="icon"><svg viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="10" fill="currentColor"/><rect x="2" y="3" width="12" height="8" fill="#0E3B4A"/><rect x="6" y="13" width="4" height="1" fill="currentColor"/><rect x="3" y="5" width="3" height="1" fill="#6FD6C4"/><rect x="3" y="7" width="6" height="1" fill="#FFD98E"/></svg></div>
+            <div class="label">Web Dev</div>
+            <span class="tip">Building fast, responsive sites from the ground up.</span>
+          </div>
+          <div class="inv-slot" style="--i:1" tabindex="0">
+            <div class="icon"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="3" fill="currentColor"/><rect x="2" y="6" width="12" height="3" fill="currentColor"/><rect x="2" y="10" width="12" height="3" fill="currentColor"/><rect x="4" y="3" width="2" height="1" fill="#0E3B4A"/><rect x="4" y="7" width="2" height="1" fill="#0E3B4A"/><rect x="4" y="11" width="2" height="1" fill="#0E3B4A"/></svg></div>
+            <div class="label">Full Stack</div>
+            <span class="tip">Frontend to backend — the whole ship, bow to stern.</span>
+          </div>
+          <div class="inv-slot" style="--i:2" tabindex="0">
+            <div class="icon"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="9" fill="currentColor"/><rect x="3" y="4" width="10" height="7" fill="#0E3B4A"/><rect x="4" y="5" width="4" height="2" fill="#FF8360"/><rect x="9" y="5" width="3" height="1" fill="#6FD6C4"/><rect x="4" y="8" width="8" height="1" fill="#FFD98E"/></svg></div>
+            <div class="label">UI / UX</div>
+            <span class="tip">Interfaces that feel good to use, not just look at.</span>
+          </div>
+          <div class="inv-slot" style="--i:3" tabindex="0">
+            <div class="icon"><svg viewBox="0 0 16 16"><rect x="2" y="7" width="4" height="2" fill="currentColor"/><rect x="10" y="7" width="4" height="2" fill="currentColor"/><rect x="6" y="4" width="1" height="8" fill="currentColor"/><rect x="9" y="4" width="1" height="8" fill="currentColor"/><rect x="6" y="4" width="4" height="1" fill="#6FD6C4"/><rect x="6" y="11" width="4" height="1" fill="#6FD6C4"/></svg></div>
+            <div class="label">APIs</div>
+            <span class="tip">Wiring services together and designing clean endpoints.</span>
+          </div>
+          <div class="inv-slot" style="--i:4" tabindex="0">
+            <div class="icon"><svg viewBox="0 0 16 16"><rect x="7" y="1" width="2" height="4" fill="currentColor"/><rect x="7" y="11" width="2" height="4" fill="currentColor"/><rect x="1" y="7" width="4" height="2" fill="currentColor"/><rect x="11" y="7" width="4" height="2" fill="currentColor"/><rect x="6" y="6" width="4" height="4" fill="#FFD98E"/></svg></div>
+            <div class="label">Tech Enthusiast</div>
+            <span class="tip">Forever chasing new tools, frameworks, and ideas.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROJECTS ============ -->
+    <section id="projects">
+      <div class="section-inner">
+        <span class="section-kicker">The Boatyard</span>
+        <h2 class="section-title">Projects</h2>
+        <div class="boatyard reveal">
+          <svg class="hull" viewBox="0 0 120 60" aria-hidden="true">
+            <rect x="10" y="30" width="100" height="16" fill="currentColor"/>
+            <path d="M10 30 L0 46 L10 46 Z" fill="currentColor"/>
+            <path d="M110 30 L120 46 L110 46 Z" fill="currentColor"/>
+            <rect x="10" y="46" width="100" height="4" fill="#071F29"/>
+            <rect x="20" y="30" width="80" height="3" fill="#FF8360"/>
+            <rect x="58" y="6" width="4" height="24" fill="#8B6F4E"/>
+            <rect x="30" y="50" width="6" height="8" fill="#8B6F4E"/>
+            <rect x="84" y="50" width="6" height="8" fill="#8B6F4E"/>
+            <rect x="14" y="34" width="92" height="1" fill="#071F29"/>
+            <rect x="14" y="40" width="92" height="1" fill="#071F29"/>
+          </svg>
+
+          <div class="build-meter reveal">
+            <span class="cap">Hull progress</span>
+            <div class="track"><div class="fill"></div></div>
+          </div>
+
+          <div class="coming-sign" aria-hidden="true"><div class="rope"></div><div class="board">Coming Soon</div></div>
+          <p class="coming-sub">The boatyard's busy — new projects are being built and will launch here soon. Check back before the tide turns.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section id="contact">
+      <div class="section-inner contact-inner">
+        <span class="section-kicker">Message in a Bottle</span>
+        <h2 class="section-title">Get in touch</h2>
+        <svg class="bottle" viewBox="0 0 30 46" aria-hidden="true">
+          <rect x="12" y="2" width="6" height="6" fill="#8B6F4E"/>
+          <rect x="10" y="8" width="10" height="4" fill="currentColor"/>
+          <rect x="6" y="12" width="18" height="30" fill="currentColor"/>
+          <rect x="8" y="14" width="14" height="26" fill="#0E3B4A"/>
+          <rect x="10" y="26" width="10" height="10" fill="#F4FBF7"/>
+          <rect x="11" y="28" width="8" height="1" fill="#0E3B4A"/>
+          <rect x="11" y="31" width="8" height="1" fill="#0E3B4A"/>
+          <rect x="11" y="34" width="5" height="1" fill="#0E3B4A"/>
+        </svg>
+        <p>Have a project in mind, or just want to say hello? Send a message across the water and let's build something.</p>
+        <a class="btn" href="mailto:a123developer@gmail.com">✉ Send me an email</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
   <footer>
-    <p>© 2026 <span class="footer-dot">safralph</span></p>
-    <p>Built with precision<span class="footer-dot"> ·</span> no frameworks</p>
+    <p>© 2026 <span class="dot">◆</span> safralph</p>
+    <p>Built with precision <span class="dot">·</span> no frameworks</p>
   </footer>
 
-  <script>
-    // ── Custom cursor
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursor-ring');
-    let mx = 0, my = 0, rx = 0, ry = 0;
+  <!-- overlays -->
+  <!-- Sailing ship rides a water line pinned to the viewport bottom. It lives out
+       here, not in <main>: `main` is a stacking context at z-index 2 and <footer>
+       is also z-index 2, so anything inside main gets painted under the footer. -->
+  <div id="sailer" aria-hidden="true">
+    <div class="sea-band sea-band--back"></div>
+    <div id="sailer-ship" class="sailing"><svg viewBox="0 0 128 24"><use href="#px-ship"/></svg></div>
+    <div class="sea-band sea-band--front"></div>
+  </div>
+  <div id="trail" aria-hidden="true"></div>
+  <div id="anchor-cursor" aria-hidden="true"><svg viewBox="0 0 16 20"><use href="#px-anchor"/></svg></div>
+  <div id="wipe" aria-hidden="true"></div>
+  <div id="toast" role="status" aria-live="polite">
+    <span class="medal">◆</span>
+    <span><span class="t-title">Achievement</span><br><span class="t-sub">Beachcomber — you found the shell!</span></span>
+  </div>
 
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
-    });
-
-    function animateRing() {
-      rx += (mx - rx - 18) * 0.12;
-      ry += (my - ry - 18) * 0.12;
-      ring.style.transform = `translate(${rx}px, ${ry}px)`;
-      requestAnimationFrame(animateRing);
-    }
-    animateRing();
-
-    // ── Nav scroll effect
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 40);
-    });
-
-    // ── Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.12 });
-    reveals.forEach(el => io.observe(el));
-
-    // ── Card gradient follow cursor
-    document.querySelectorAll('.app-card:not(.app-card-add)').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width * 100)}%`);
-        card.style.setProperty('--my', `${((e.clientY - r.top) / r.height * 100)}%`);
-      });
-    });
-  </script>
+  <script src="assets/js/main.js" defer></script>
 </body>
 </html>

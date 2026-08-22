@@ -1,0 +1,789 @@
+/* ============================================================
+   Seaside Pixel Port — safralph.github.io
+   A coastal 16-bit-inspired portfolio. Original palette & art.
+   ============================================================ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ---------- Tokens : DAY ---------- */
+:root {
+  --sea-deep:    #0E3B4A;
+  --sea-harbour: #16566B;
+  --sun-dawn:    #FFD98E;
+  --coral:       #FF8360;
+  --teal:        #6FD6C4;
+  --foam:        #F4FBF7;
+  --driftwood:   #8B6F4E;
+  --ink:         #071F29;
+
+  --sky-top:     #2E6E86;
+  --sky-mid:     #4F97A8;
+  --sky-low:     #FFB98A;
+  --water:       #1B6076;
+  --water-2:     #14506380;
+  --disc:        #FFE7B0;   /* sun */
+  --disc-glow:   #FFD98E;
+  --beam:        transparent;
+  --star:        transparent;
+
+  --panel-bg:    #0d3140;
+  --panel-line:  #0a2833;
+
+  --px: 4px;                /* base pixel unit */
+  --font-display: 'Press Start 2P', monospace;
+  --font-body: 'Nunito', system-ui, sans-serif;
+}
+
+/* ---------- Tokens : NIGHT ---------- */
+:root[data-time="night"] {
+  --sea-deep:    #071726;
+  --sea-harbour: #0d2c3e;
+  --sun-dawn:    #FFE7A8;
+  --coral:       #FF9E7A;
+  --teal:        #8AE6D6;
+  --foam:        #EAF4Fb;
+  --driftwood:   #6d5740;
+  --ink:         #02080f;
+
+  --sky-top:     #04101f;
+  --sky-mid:     #0a2138;
+  --sky-low:     #123049;
+  --water:       #08283a;
+  --water-2:     #0a2c4080;
+  --disc:        #EAF2FF;   /* moon */
+  --disc-glow:   #9FB8E8;
+  --beam:        rgba(255,231,168,0.10);
+  --star:        #EAF4Fb;
+}
+
+/* ---------- Global ---------- */
+html { scroll-behavior: smooth; }
+:root[data-motion="reduced"] html,
+html[data-motion="reduced"] { scroll-behavior: auto; }
+
+body {
+  background: var(--sea-deep);
+  color: var(--foam);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  transition: background .6s steps(6), color .6s steps(6);
+  min-height: 100vh;
+}
+
+img, svg { image-rendering: pixelated; }
+svg { shape-rendering: crispEdges; }
+
+h1, h2, h3, .ui {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: .02em;
+}
+
+a { color: var(--teal); text-decoration: none; }
+a:hover { color: var(--sun-dawn); }
+
+::selection { background: var(--coral); color: var(--ink); }
+
+/* Visible pixel focus ring */
+:focus-visible {
+  outline: var(--px) solid var(--sun-dawn);
+  outline-offset: var(--px);
+}
+
+/* ---------- Skip link ---------- */
+#skip {
+  position: fixed; top: -60px; left: 12px; z-index: 400;
+  background: var(--sun-dawn); color: var(--ink);
+  font-family: var(--font-display); font-size: 10px;
+  padding: 10px 14px; border: var(--px) solid var(--ink);
+  transition: top .2s;
+}
+#skip:focus { top: 12px; }
+
+/* ---------- Hidden SVG atlas ---------- */
+#atlas { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* ============================================================
+   PIXEL PRIMITIVES
+   ============================================================ */
+
+/* Chunky panel with hard offset shadow — no blur, ever. */
+.panel {
+  position: relative;
+  background: var(--panel-bg);
+  border: var(--px) solid var(--ink);
+  box-shadow:
+    0 0 0 var(--px) var(--sea-harbour),
+    calc(var(--px) * 2) calc(var(--px) * 2) 0 0 var(--ink);
+  padding: clamp(1.4rem, 4vw, 2.4rem);
+}
+/* notched pixel corners */
+.panel::before, .panel::after {
+  content: ''; position: absolute; width: var(--px); height: var(--px);
+  background: var(--sun-dawn);
+}
+.panel::before { top: calc(var(--px) * -1); left: calc(var(--px) * -1); }
+.panel::after  { bottom: calc(var(--px) * -1); right: calc(var(--px) * -1); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: .7rem;
+  font-family: var(--font-display); font-size: 11px;
+  color: var(--ink); background: var(--sun-dawn);
+  border: var(--px) solid var(--ink);
+  box-shadow: var(--px) var(--px) 0 0 var(--ink);
+  padding: 14px 20px; cursor: pointer;
+  text-transform: uppercase;
+  transition: transform .08s steps(2), box-shadow .08s steps(2), background .2s;
+}
+.btn:hover { background: var(--teal); transform: translate(-2px,-2px);
+  box-shadow: calc(var(--px)*1.5) calc(var(--px)*1.5) 0 0 var(--ink); }
+.btn:active { transform: translate(1px,1px); box-shadow: 0 0 0 0 var(--ink); }
+.btn--coral { background: var(--coral); }
+.btn--coral:hover { background: var(--sun-dawn); }
+
+/* ---------- SET SAIL — the hero call to action ---------- */
+.btn--sail {
+  position: relative; overflow: hidden;
+  padding: 15px 24px; letter-spacing: .04em;
+  /* Hover is a *stepped transition*, not an animation. An `animation` on :hover
+     would replace this element's animation-name, so every mouse-out would
+     re-trigger whatever the base rule declares — i.e. replay the entrance. */
+  transition: transform .3s steps(3), box-shadow .3s steps(3), background .2s;
+}
+.btn--sail .sail-arrow { display: inline-block; }
+[data-motion="full"] .btn--sail .sail-arrow { animation: bob-x 1.1s steps(3) infinite; }
+
+/* entrance — sails in from the left; the wrapping div still owns the fade.
+   One-shot class: JS strips it on animationend so .launch can own `animation`. */
+[data-motion="full"] .btn--sail.sail-in { animation: sail-in .5s steps(5) .64s backwards; }
+
+/* idle — a glint crosses the deck every few seconds */
+.btn--sail::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 36%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.5), transparent);
+  transform: translateX(-120%) skewX(-18deg); opacity: 0; pointer-events: none;
+}
+[data-motion="full"] .btn--sail::after { animation: sail-shimmer 4.2s steps(9) 1.6s infinite; }
+
+/* hover — three discrete pixel steps up-left instead of one smooth slide */
+.btn--sail:hover {
+  transform: translate(-6px,-6px);
+  box-shadow: calc(var(--px) * 2.5) calc(var(--px) * 2.5) 0 0 var(--ink);
+}
+[data-motion="full"] .btn--sail:hover .sail-arrow { animation: sail-arrow .34s steps(4) infinite; }
+
+/* press — squash, lurch off, and throw a foam wake */
+.btn--sail::before {
+  content: ''; position: absolute; left: 50%; bottom: -10px;
+  width: 84%; height: 8px; opacity: 0; pointer-events: none;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(90deg, var(--foam) 0 4px, transparent 4px 12px);
+}
+.btn--sail.launch { overflow: visible; }   /* let the wake escape the hull */
+[data-motion="full"] .btn--sail.launch { animation: sail-launch .5s steps(6) forwards; }
+[data-motion="full"] .btn--sail.launch::before { animation: sail-spray .5s steps(5) forwards; }
+/* overflow:visible would also un-clip the glint mid-sweep — park it for the launch */
+[data-motion="full"] .btn--sail.launch::after { animation: none; opacity: 0; }
+
+/* Status plate ("AVAILABLE FOR PROJECTS") */
+.plate {
+  display: inline-flex; align-items: center; gap: .7rem;
+  font-family: var(--font-display); font-size: 9px;
+  color: var(--foam); text-transform: uppercase; letter-spacing: .08em;
+  background: var(--panel-bg);
+  border: var(--px) solid var(--ink);
+  box-shadow: var(--px) var(--px) 0 0 var(--sea-harbour);
+  padding: 10px 14px;
+}
+.plate .dot {
+  width: 10px; height: 10px; background: var(--teal);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+[data-motion="full"] .plate .dot { animation: blink 1.4s steps(2) infinite; }
+
+/* ============================================================
+   CONTROLS (theme / sound / motion) — flex children of the top bar
+   ============================================================ */
+#controls {
+  display: flex; gap: 8px; flex: 0 0 auto;
+}
+.ctl {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: var(--sea-harbour); color: var(--foam);
+  border: var(--px) solid var(--ink);
+  box-shadow: var(--px) var(--px) 0 0 var(--ink);
+  cursor: pointer; font-size: 18px; line-height: 1;
+  transition: transform .08s steps(2), background .2s;
+}
+.ctl:hover { background: var(--coral); color: var(--ink); transform: translate(-1px,-1px); }
+.ctl:active { transform: translate(1px,1px); box-shadow: 0 0 0 0 var(--ink); }
+.ctl svg { width: 20px; height: 20px; }
+.ctl .icon-night, :root[data-time="night"] .ctl .icon-day { display: none; }
+:root[data-time="night"] .ctl .icon-night { display: block; }
+
+/* ============================================================
+   TOP BAR — one flex row: logo | RPG menu | controls
+   ============================================================ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: clamp(10px, 2vw, 24px);
+  padding: 10px clamp(16px, 4vw, 40px);
+  background: var(--panel-bg);
+  border-bottom: var(--px) solid var(--ink);
+  transition: background .3s, box-shadow .3s;
+}
+/* no blur — just a deeper hard edge once you leave the hero */
+#nav.scrolled {
+  box-shadow: 0 var(--px) 0 0 var(--sea-harbour),
+              0 calc(var(--px) * 2) 0 0 var(--ink);
+}
+.nav-logo {
+  font-family: var(--font-display); font-size: 15px; color: var(--foam);
+  flex: 0 0 auto;
+}
+.nav-logo b { color: var(--sun-dawn); font-weight: 400; }
+
+#nav-list {
+  position: relative; display: flex; gap: clamp(12px, 2.4vw, 30px);
+  list-style: none; align-items: center; flex: 0 1 auto;
+}
+.nav-link {
+  font-family: var(--font-display); font-size: 10px;
+  color: var(--foam); opacity: .62; text-transform: uppercase;
+  padding: 6px 2px; letter-spacing: .05em;
+  transition: opacity .2s, color .2s, transform .12s steps(2);
+}
+.nav-link:hover { opacity: 1; color: var(--sun-dawn); transform: translateY(-2px); }
+.nav-link.active { opacity: 1; color: var(--sun-dawn); }
+
+/* the ▸ cursor arrow that snaps between items */
+#nav-cursor {
+  position: absolute; left: 0; top: 50%;
+  width: 12px; height: 12px;
+  color: var(--coral); pointer-events: none;
+  transform: translate(-20px, -50%);
+  opacity: 0;
+}
+[data-motion="full"] #nav-cursor {
+  transition: transform .22s cubic-bezier(.6,0,.2,1), opacity .2s;
+}
+#nav-cursor.show { opacity: 1; }
+/* bob lives on the SVG so it never fights the JS-set position transform */
+[data-motion="full"] #nav-cursor.show svg { animation: bob-x 1.1s steps(3) infinite; }
+#nav-cursor svg { display: block; width: 12px; height: 12px; color: var(--coral); }
+
+/* Hamburger (mobile) */
+#hamburger {
+  display: none; width: 40px; height: 40px; flex: 0 0 auto;
+  background: var(--sea-harbour); border: var(--px) solid var(--ink);
+  box-shadow: var(--px) var(--px) 0 0 var(--ink);
+  cursor: pointer; padding: 9px;
+}
+#hamburger span { display: block; height: 3px; background: var(--foam); margin: 3px 0; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+main { position: relative; z-index: 2; }
+section { position: relative; }
+/* the top bar is always opaque now — keep titles clear of it when wipe-navigating */
+section[id] { scroll-margin-top: 76px; }
+.section-inner { max-width: 1080px; margin: 0 auto; padding: clamp(4rem, 10vw, 8rem) clamp(20px, 5vw, 48px); }
+.section-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-size: 10px;
+  color: var(--teal); text-transform: uppercase; margin-bottom: 1rem;
+}
+.section-kicker::before { content: '◆'; color: var(--coral); }
+.section-title { font-size: clamp(20px, 4.5vw, 34px); color: var(--foam); margin-bottom: 2.4rem; }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(26px); }
+[data-motion="full"] .reveal { transition: opacity .6s steps(6), transform .6s cubic-bezier(.6,0,.2,1); }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ============================================================
+   HERO — parallax harbour
+   ============================================================ */
+#home {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center;
+  padding-top: 62px;
+  overflow: hidden;
+}
+.parallax { position: absolute; inset: 0; z-index: 0; }
+.layer { position: absolute; inset: 0; will-change: transform; pointer-events: none; }
+
+.layer--sky {
+  background:
+    linear-gradient(180deg,
+      var(--sky-top) 0%,
+      var(--sky-mid) 46%,
+      var(--sky-low) 66%,
+      var(--water) 66.5%,
+      var(--sea-deep) 100%);
+  transition: background .6s steps(6);
+}
+
+/* stars (night only) */
+.stars { position: absolute; inset: 0 0 40% 0; }
+.stars i {
+  position: absolute; width: 3px; height: 3px; background: var(--star);
+  opacity: 0; transition: opacity .6s;
+}
+:root[data-time="night"] .stars i { opacity: .9; }
+[data-motion="full"]:root[data-time="night"] .stars i { animation: twinkle 3s steps(2) infinite; }
+
+/* sun / moon disc */
+.sun {
+  position: absolute; top: 14%; right: 16%;
+  width: 84px; height: 84px; background: var(--disc);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--disc-glow) 45%, transparent),
+              0 0 0 14px color-mix(in srgb, var(--disc-glow) 20%, transparent);
+  transition: background .6s steps(6), box-shadow .6s;
+}
+[data-motion="full"] .sun { animation: pulse-disc 5s steps(4) infinite; }
+
+/* lighthouse beam (night) */
+.beam {
+  position: absolute; left: 9%; top: 30%;
+  width: 90vw; height: 42vw; transform-origin: left center;
+  background: conic-gradient(from -18deg at 0 50%,
+              transparent 0 6deg, var(--beam) 8deg 16deg, transparent 18deg);
+  opacity: 0;
+}
+:root[data-time="night"] .beam { opacity: 1; }
+[data-motion="full"]:root[data-time="night"] .beam { animation: sweep 9s steps(60) infinite; }
+
+.layer--clouds .cloud { position: absolute; color: #ffffff; opacity: .85; }
+:root[data-time="night"] .layer--clouds .cloud { opacity: .28; }
+.layer--clouds .cloud svg { width: 100%; height: 100%; }
+
+.layer--islands { color: var(--sea-harbour); }
+/* Target the silhouette explicitly. A bare `.layer--islands svg` here (0-1-1) used to
+   out-rank `.lighthouse` (0-1-0) and blew the lighthouse up to 100% hero width. */
+.layer--islands > svg.islands { position: absolute; bottom: 33%; width: 100%; height: auto; }
+.layer--islands .lighthouse { position: absolute; bottom: 33%; left: 8%; width: 46px; height: auto; }
+
+/* the big moored galleon — mid-ground, behind the dock and the hero copy */
+.layer--islands .galleon {
+  position: absolute; bottom: 26%; right: 9%;
+  width: clamp(150px, 22vw, 260px); height: auto; z-index: 2;
+}
+[data-motion="full"] .layer--islands .galleon { animation: ship-moor 7s steps(10) infinite; }
+
+/* wave bands */
+.layer--waves { top: 62%; }
+.wave-band {
+  position: absolute; left: -20%; width: 140%; height: 60px;
+  color: var(--water);
+}
+.wave-band svg { width: 100%; height: 100%; }
+.wave-band--1 { top: 4%;  color: var(--teal); opacity: .5; }
+.wave-band--2 { top: 16%; color: var(--water); opacity: .8; }
+.glints { position: absolute; inset: 62% 0 0 0; }
+.glints i { position: absolute; width: 6px; height: 3px; background: var(--sun-dawn); opacity: .0; }
+[data-motion="full"] body[data-weather="clear"] .glints i { animation: glint 2.6s steps(2) infinite; }
+
+/* foreground dock */
+.layer--dock { z-index: 3; }
+.dock-svg { position: absolute; bottom: 0; width: 100%; height: auto; color: var(--driftwood); }
+
+/* moored dinghy — moved left so it doesn't fight the galleon */
+.boat { position: absolute; bottom: 12%; left: 6%; width: 60px; color: var(--coral); z-index: 2; }
+[data-motion="full"] .boat { animation: boat-bob 4.5s steps(8) infinite; }
+
+/* easter-egg shell — clear of the 56px water band so it stays findable */
+#shell {
+  position: absolute; bottom: 72px; left: 18%; width: 22px; height: 22px;
+  background: none; border: 0; cursor: pointer; z-index: 6; opacity: .9;
+}
+#shell svg { width: 100%; height: 100%; color: #ffd0d8; }
+#shell.found { display: none; }
+[data-motion="full"] #shell { animation: shell-glimmer 4s steps(2) infinite; }
+
+/* fish silhouette */
+.fish {
+  position: absolute; top: 74%; left: -8%; width: 34px; color: var(--ink);
+  opacity: .5; z-index: 1;
+}
+
+/* hero content */
+.hero-content { position: relative; z-index: 5; max-width: 720px; padding: 0 clamp(20px,5vw,48px); }
+.hero-name {
+  font-size: clamp(38px, 11vw, 96px); color: var(--foam);
+  line-height: .96; margin: 1.2rem 0;
+  text-shadow: var(--px) var(--px) 0 var(--ink);
+}
+.hero-name .l2 { display: block; color: var(--sun-dawn); }
+/* Dark "log plate" behind the sub-line — foam on peach sky was ~1.5:1 */
+.hero-sub {
+  font-size: clamp(15px, 2.4vw, 19px); max-width: 34ch;
+  color: var(--foam); font-weight: 600; line-height: 1.65;
+  margin-top: .4rem; padding: 12px 16px;
+  background: color-mix(in srgb, var(--ink) 72%, transparent);
+  border-left: var(--px) solid var(--teal);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+[data-motion="full"] .hero-content > * { opacity: 0; animation: fade-up .7s steps(8) forwards; }
+[data-motion="full"] .hero-content > *:nth-child(1) { animation-delay: .1s; }
+[data-motion="full"] .hero-content > *:nth-child(2) { animation-delay: .28s; }
+[data-motion="full"] .hero-content > *:nth-child(3) { animation-delay: .46s; }
+[data-motion="full"] .hero-content > *:nth-child(4) { animation-delay: .64s; }
+
+.scroll-cue {
+  position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%);
+  z-index: 5; font-family: var(--font-display); font-size: 8px;
+  color: var(--foam); opacity: .7; text-align: center; letter-spacing: .12em;
+}
+.scroll-cue .bar { width: 3px; height: 34px; background: var(--sun-dawn); margin: 8px auto 0; }
+[data-motion="full"] .scroll-cue .bar { animation: cue 1.8s steps(6) infinite; transform-origin: top; }
+
+/* ============================================================
+   SAILING SHIP — rides a water line pinned to the bottom.
+   Water is a tiled background-image so the drift period is exactly
+   background-size, making the modulo wrap seamless.
+   Lives outside <main> (see index.html) so the footer can't cover it;
+   z-index sits above the footer but below #trail / #wipe / #toast.
+   ============================================================ */
+#sailer {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 56px;
+  z-index: 340; pointer-events: none; overflow: hidden;
+}
+.sea-band {
+  position: absolute; left: 0; right: 0;
+  background-repeat: repeat-x; image-rendering: pixelated;
+}
+.sea-band--back {
+  bottom: 9px; height: 26px; background-size: 80px 26px; opacity: .55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 13'%3E%3Crect y='6' width='20' height='7' fill='%231B6076'/%3E%3Crect y='4' width='7' height='2' fill='%231B6076'/%3E%3Crect x='11' y='3' width='7' height='3' fill='%231B6076'/%3E%3Crect y='4' width='7' height='1' fill='%236FD6C4'/%3E%3Crect x='11' y='3' width='7' height='1' fill='%236FD6C4'/%3E%3C/svg%3E");
+}
+.sea-band--front {
+  bottom: 0; height: 22px; background-size: 64px 22px; opacity: .95;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 11'%3E%3Crect y='4' width='16' height='7' fill='%230E3B4A'/%3E%3Crect x='2' y='2' width='6' height='2' fill='%230E3B4A'/%3E%3Crect x='2' y='2' width='6' height='1' fill='%236FD6C4'/%3E%3Crect x='9' y='3' width='5' height='1' fill='%236FD6C4'/%3E%3C/svg%3E");
+}
+/* colours baked into a data URI can't follow the tokens — swap the tiles at night */
+:root[data-time="night"] .sea-band--back {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 13'%3E%3Crect y='6' width='20' height='7' fill='%2308283a'/%3E%3Crect y='4' width='7' height='2' fill='%2308283a'/%3E%3Crect x='11' y='3' width='7' height='3' fill='%2308283a'/%3E%3Crect y='4' width='7' height='1' fill='%238AE6D6'/%3E%3Crect x='11' y='3' width='7' height='1' fill='%238AE6D6'/%3E%3C/svg%3E");
+}
+:root[data-time="night"] .sea-band--front {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 11'%3E%3Crect y='4' width='16' height='7' fill='%23071726'/%3E%3Crect x='2' y='2' width='6' height='2' fill='%23071726'/%3E%3Crect x='2' y='2' width='6' height='1' fill='%238AE6D6'/%3E%3Crect x='9' y='3' width='5' height='1' fill='%238AE6D6'/%3E%3C/svg%3E");
+}
+
+#sailer-ship {
+  position: absolute; bottom: 17px; left: 0; width: 32px; height: 24px;
+  overflow: hidden; transform: translateX(-80px);
+}
+#sailer-ship > svg { width: 128px; height: 24px; display: block; }
+/* strip cycles on the inner svg so it never fights the JS-set outer transform */
+[data-motion="full"] #sailer-ship.sailing > svg { animation: sail-cycle .62s steps(4) infinite; }
+
+/* ============================================================
+   ABOUT — dialogue box + typewriter
+   ============================================================ */
+.dialogue { max-width: 760px; }
+.dialogue .who {
+  display: inline-block; font-family: var(--font-display); font-size: 10px;
+  color: var(--ink); background: var(--sun-dawn);
+  padding: 6px 12px; border: var(--px) solid var(--ink);
+  margin-bottom: -2px; margin-left: 12px; position: relative; z-index: 2;
+}
+.dialogue .box { position: relative; }
+.type-wrap { position: relative; font-size: clamp(16px,2.6vw,21px); line-height: 1.9; min-height: 4em; }
+/* full text always in DOM for a11y; reveal via clip width */
+/* full text is visible by default (no-JS safe); JS hides it only while typing */
+#typed.typing .rest { color: transparent; }
+.caret {
+  display: inline-block; color: var(--coral); margin-left: 4px;
+  font-family: var(--font-display);
+}
+[data-motion="full"] .caret { animation: blink 1s steps(2) infinite; }
+#typed.done .caret { display: none; }
+
+/* ============================================================
+   SKILLS — inventory grid
+   ============================================================ */
+.inv-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: clamp(12px, 2.5vw, 20px); max-width: 900px;
+}
+.inv-slot {
+  position: relative; text-align: center; padding: 20px 12px;
+  background: var(--panel-bg); border: var(--px) solid var(--ink);
+  box-shadow: inset 0 0 0 var(--px) var(--sea-harbour),
+              var(--px) var(--px) 0 0 var(--ink);
+  cursor: help; overflow: hidden;
+  opacity: 0; transform: translateY(20px);
+}
+[data-motion="full"] .inv-slot { transition: transform .12s steps(3), box-shadow .12s steps(3); }
+.inv-grid.visible .inv-slot { opacity: 1; transform: none; }
+[data-motion="full"] .inv-grid.visible .inv-slot {
+  animation: slot-pop .4s steps(4) backwards;
+  animation-delay: calc(var(--i) * .08s);
+}
+.inv-slot:hover { transform: translate(-2px,-2px);
+  box-shadow: inset 0 0 0 var(--px) var(--sun-dawn), calc(var(--px)*1.5) calc(var(--px)*1.5) 0 0 var(--ink); }
+/* diagonal glint sweep on hover */
+.inv-slot::after {
+  content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-18deg); opacity: 0;
+}
+[data-motion="full"] .inv-slot:hover::after { animation: glint-sweep .5s steps(8) forwards; }
+.inv-slot .icon { color: var(--teal); }
+.inv-slot .icon svg { width: 42px; height: 42px; }
+.inv-slot .label { font-family: var(--font-display); font-size: 9px; margin-top: 12px; color: var(--foam); line-height: 1.6; }
+.inv-slot .tip {
+  position: absolute; inset: auto 6px 6px 6px; padding: 8px;
+  background: var(--ink); color: var(--foam); font-size: 12px; line-height: 1.4;
+  border: 2px solid var(--sun-dawn); opacity: 0; transform: translateY(6px);
+  pointer-events: none; transition: opacity .18s, transform .18s;
+}
+.inv-slot:hover .tip, .inv-slot:focus-within .tip { opacity: 1; transform: none; }
+
+/* ============================================================
+   PROJECTS — the boatyard, coming soon
+   ============================================================ */
+.boatyard { display: grid; gap: 2rem; justify-items: center; text-align: center; }
+.hull { width: min(360px, 80vw); color: var(--driftwood); }
+[data-motion="full"] .hull { animation: hull-settle 6s steps(6) infinite; }
+
+.coming-sign {
+  position: relative; display: inline-block; margin-top: 1rem;
+  transform-origin: top center;
+}
+[data-motion="full"] .coming-sign { animation: sign-sway 4s steps(8) infinite; }
+.coming-sign .rope { width: 3px; height: 26px; background: var(--driftwood); margin: 0 auto; }
+.coming-sign .board {
+  background: var(--driftwood); color: var(--ink);
+  border: var(--px) solid var(--ink); padding: 16px 26px;
+  font-family: var(--font-display); font-size: clamp(12px,3vw,18px);
+  box-shadow: var(--px) var(--px) 0 0 var(--ink);
+}
+.coming-sub { color: var(--foam); opacity: .8; max-width: 40ch; margin: 0 auto; }
+
+/* honest build-progress meter (decorative, no claim about a person) */
+.build-meter { width: min(360px, 80vw); }
+.build-meter .cap { font-family: var(--font-display); font-size: 9px; color: var(--teal); margin-bottom: 8px; display: block; text-transform: uppercase; }
+.build-meter .track {
+  height: 22px; background: var(--ink); border: var(--px) solid var(--ink);
+  box-shadow: 0 0 0 var(--px) var(--sea-harbour); padding: 3px;
+}
+.build-meter .fill {
+  height: 100%; width: 0; background: repeating-linear-gradient(
+    90deg, var(--teal) 0 8px, var(--sun-dawn) 8px 16px);
+}
+.build-meter.visible .fill { width: 62%; }
+[data-motion="full"] .build-meter.visible .fill { transition: width 1.4s steps(20); }
+
+/* ============================================================
+   CONTACT — message in a bottle
+   ============================================================ */
+.contact-inner { text-align: center; display: grid; gap: 1.6rem; justify-items: center; }
+.bottle { width: 90px; color: var(--teal); }
+[data-motion="full"] .bottle { animation: boat-bob 5s steps(8) infinite; }
+.contact-inner p { max-width: 42ch; color: var(--foam); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  position: relative; z-index: 2;
+  border-top: var(--px) solid var(--ink);
+  background: var(--panel-bg);
+  /* extra bottom room so the fixed water band never covers footer text */
+  padding: 1.8rem clamp(20px,5vw,48px) calc(1.8rem + 44px);
+  display: flex; flex-wrap: wrap; gap: .6rem 1.4rem;
+  align-items: center; justify-content: space-between;
+  font-size: 13px;
+}
+footer .dot { color: var(--sun-dawn); }
+
+/* ============================================================
+   ANCHOR CURSOR (fine pointers only)
+   ============================================================ */
+/* Fallback: if JS never runs, the real cursor is still a pixel anchor. */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='20' viewBox='0 0 16 20'%3E%3Crect x='5' width='6' height='5' fill='%23071F29'/%3E%3Crect x='6' y='4' width='4' height='15' fill='%23071F29'/%3E%3Crect x='2' y='5' width='12' height='3' fill='%23071F29'/%3E%3Crect x='1' y='12' width='3' height='6' fill='%23071F29'/%3E%3Crect x='12' y='12' width='3' height='6' fill='%23071F29'/%3E%3Crect x='3' y='16' width='10' height='4' fill='%23071F29'/%3E%3Crect x='7' y='5' width='2' height='13' fill='%236FD6C4'/%3E%3Crect x='3' y='6' width='10' height='1' fill='%236FD6C4'/%3E%3Crect x='6' y='1' width='4' height='1' fill='%236FD6C4'/%3E%3Crect x='6' y='3' width='4' height='1' fill='%236FD6C4'/%3E%3Crect x='5' y='1' width='1' height='3' fill='%236FD6C4'/%3E%3Crect x='10' y='1' width='1' height='3' fill='%236FD6C4'/%3E%3Crect x='2' y='13' width='1' height='4' fill='%236FD6C4'/%3E%3Crect x='13' y='13' width='1' height='4' fill='%236FD6C4'/%3E%3Crect x='4' y='17' width='8' height='2' fill='%236FD6C4'/%3E%3C/svg%3E") 8 2, auto; }
+}
+/* JS only adds .anchor-cursor when it can actually draw the sprite, so a real
+   cursor always comes back on touch devices and with motion turned off.
+   #shell needs an ID-level selector here to out-rank its own `cursor: pointer`. */
+html.anchor-cursor, html.anchor-cursor body,
+html.anchor-cursor a, html.anchor-cursor button,
+html.anchor-cursor .inv-slot, html.anchor-cursor [tabindex],
+html.anchor-cursor #shell { cursor: none; }
+#anchor-cursor {
+  position: fixed; left: 0; top: 0; width: 24px; height: 30px;
+  z-index: 355; pointer-events: none; opacity: 0;
+  transform-origin: 50% 12%;          /* the shackle — it swings from the ring */
+  will-change: transform;
+}
+html.anchor-cursor #anchor-cursor.ready { opacity: 1; }
+#anchor-cursor svg { width: 100%; height: 100%; display: block; color: var(--teal); }
+#anchor-cursor.over svg { color: var(--sun-dawn); }
+#anchor-cursor.grab svg { color: var(--coral); }
+@media (hover: none), (pointer: coarse) {
+  #anchor-cursor { display: none; }
+  body { cursor: auto; }
+}
+
+/* ============================================================
+   CURSOR TRAIL (fine pointers only)
+   ============================================================ */
+#trail { position: fixed; inset: 0; z-index: 350; pointer-events: none; }
+.bubble {
+  position: absolute; width: 8px; height: 8px; background: var(--teal);
+  box-shadow: 0 0 0 2px var(--ink); opacity: 0;
+}
+@media (hover: none), (pointer: coarse) { #trail { display: none; } }
+
+/* ============================================================
+   SCREEN WIPE (nav transition)
+   ============================================================ */
+#wipe {
+  position: fixed; inset: 0; z-index: 360; pointer-events: none;
+  display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(8, 1fr);
+}
+#wipe i { background: var(--sea-deep); transform: scale(0); transform-origin: center; }
+#wipe.play i {
+  animation: wipe-in .28s steps(3) forwards, wipe-out .28s steps(3) forwards;
+  animation-delay: calc((var(--i) + var(--j)) * .02s), calc(.42s + (var(--i) + var(--j)) * .02s);
+}
+
+/* ============================================================
+   ACHIEVEMENT TOAST
+   ============================================================ */
+#toast {
+  position: fixed; right: 16px; bottom: 16px; z-index: 380;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel-bg); color: var(--foam);
+  border: var(--px) solid var(--sun-dawn);
+  box-shadow: var(--px) var(--px) 0 0 var(--ink);
+  padding: 14px 18px; max-width: 320px;
+  transform: translateX(140%); opacity: 0;
+}
+[data-motion="full"] #toast { transition: transform .4s steps(6), opacity .4s; }
+#toast.show { transform: none; opacity: 1; }
+#toast .medal { color: var(--sun-dawn); font-size: 22px; }
+#toast .t-title { font-family: var(--font-display); font-size: 9px; color: var(--sun-dawn); }
+#toast .t-sub { font-size: 13px; }
+
+/* ============================================================
+   WEATHER PARTICLES
+   ============================================================ */
+.gull { position: absolute; width: 26px; color: var(--foam); opacity: .0; }
+:root[data-time="night"] .gull { color: #b9c8dd; }
+.gull svg { width: 100%; }
+.rain-drop { position: absolute; width: 2px; height: 14px; background: var(--teal); opacity: 0; }
+.ripple { position: absolute; width: 8px; height: 8px; border: 2px solid var(--teal); border-radius: 0; opacity: 0; }
+.mist { position: absolute; height: 120px; width: 40vw; background: linear-gradient(90deg, transparent, rgba(244,251,251,.14), transparent); opacity: 0; }
+
+body[data-weather="rain"] .glints i { animation: none; opacity: 0; }
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes blink { 50% { opacity: .2; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes bob-x { 50% { transform: translateX(3px); } }
+@keyframes sail-cycle { to { transform: translateX(-96px); } }
+@keyframes ship-moor { 0%,100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(-7px) rotate(1.2deg); } }
+@keyframes sail-in {
+  0%   { transform: translateX(-30px); }
+  60%  { transform: translateX(5px); }
+  80%  { transform: translateX(-2px); }
+  100% { transform: none; }
+}
+@keyframes sail-shimmer {
+  0%, 55% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  58%     { transform: translateX(-120%) skewX(-18deg); opacity: 1; }
+  92%     { transform: translateX(320%)  skewX(-18deg); opacity: 1; }
+  100%    { transform: translateX(320%)  skewX(-18deg); opacity: 0; }
+}
+@keyframes sail-arrow { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+@keyframes sail-launch {
+  0%   { transform: translate(0,0) scaleY(1); }
+  20%  { transform: translate(3px,4px) scaleY(.84); }
+  45%  { transform: translate(-8px,-8px) scaleY(1.06); }
+  70%  { transform: translate(-3px,-2px) scaleY(1); }
+  100% { transform: none; }
+}
+@keyframes sail-spray {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-6px) scaleX(.3); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(10px) scaleX(1.7); }
+}
+@keyframes cue { 0%,100% { transform: scaleY(.4); opacity: .4; } 50% { transform: scaleY(1); opacity: 1; } }
+@keyframes pulse-disc { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--disc-glow) 45%, transparent), 0 0 0 18px color-mix(in srgb, var(--disc-glow) 20%, transparent); } }
+@keyframes sweep { 0%,100% { transform: rotate(-14deg); } 50% { transform: rotate(16deg); } }
+@keyframes twinkle { 50% { opacity: .25; } }
+@keyframes glint { 0%, 90%, 100% { opacity: 0; } 45% { opacity: .9; } }
+@keyframes boat-bob { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-6px) rotate(1deg); } }
+@keyframes shell-glimmer { 50% { opacity: .55; } }
+@keyframes slot-pop { from { opacity: 0; transform: translateY(20px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes glint-sweep { to { left: 130%; opacity: 1; } }
+@keyframes hull-settle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes sign-sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes wipe-in { to { transform: scale(1); } }
+@keyframes wipe-out { from { transform: scale(1); } to { transform: scale(0); } }
+
+/* ============================================================
+   REDUCED MOTION — structural fallback
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation: none !important;
+  transition-duration: .001ms !important;
+}
+[data-motion="reduced"] .reveal { opacity: 1; transform: none; }
+[data-motion="reduced"] .hero-content > * { opacity: 1; }
+[data-motion="reduced"] .inv-slot { opacity: 1; transform: none; }
+[data-motion="reduced"] #typed .rest { color: inherit; }
+[data-motion="reduced"] .caret { display: none; }
+[data-motion="reduced"] #trail { display: none; }
+[data-motion="reduced"] #anchor-cursor { display: none; }
+[data-motion="reduced"] #sailer { display: none; }
+[data-motion="reduced"] .build-meter .fill { width: 62%; }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  #hamburger { display: block; }
+  #nav-cursor { display: none; }
+  /* the drawer is z-index 305 inside #nav's stacking context — lift the toggles
+     and the hamburger above it, or an open menu buries its own close button */
+  #controls, #hamburger { position: relative; z-index: 306; }
+  #controls { margin-left: auto; gap: 6px; }
+  .ctl { width: 36px; height: 36px; }
+  .ctl svg { width: 18px; height: 18px; }
+  #nav-list {
+    position: fixed; inset: 0 0 0 auto; width: min(72vw, 300px);
+    flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 22px; padding: 40px;
+    background: var(--panel-bg); border-left: var(--px) solid var(--ink);
+    transform: translateX(100%); transition: transform .28s steps(4);
+    z-index: 305;
+  }
+  #nav-list.open { transform: none; }
+  .nav-link { font-size: 13px; opacity: .9; }
+  .boat, .fish, .layer--islands .galleon { display: none; }
+  #sailer { display: none; }
+  footer { padding-bottom: 1.8rem; }
+  .scroll-cue { bottom: 22px; }
+  .layer--clouds .cloud:nth-child(n+3) { display: none; }
+}
